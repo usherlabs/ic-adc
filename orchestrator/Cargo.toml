@@ -1,0 +1,13 @@
+[package]
+name = "orchestrator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.39.2", features = ["full"] }
+# cron = "0.12.1"
+# chrono = "0.4"
+# tokio-cron-scheduler = "0.10.2"
+# tokio = "1.39.2"
+tokio-cron-scheduler = "0.10.2"
+uuid = "1.10.0"
