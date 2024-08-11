@@ -48,20 +48,22 @@ pub async fn create_agent(config: &Config) -> Result<Agent> {
 
 /// Get the raw logs from a canister
 pub async fn get_canister_logs(
-    canister_id: Principal,
-    agent: &Agent,
+    config: &Config,
     start_timestamp: Option<u64>,
 ) -> Result<Vec<EventLog>> {
+    let canister_id = config.canister;
     #[derive(CandidType)]
     struct In {
         canister_id: Principal,
     }
+    
+    let agent = config.get_agent().await.unwrap();
 
     let (out,): (FetchCanisterLogsResponse,) = do_management_query_call(
         canister_id,
         MgmtMethod::FetchCanisterLogs.as_ref(),
         In { canister_id },
-        agent,
+        &agent,
     )
     .await?;
 

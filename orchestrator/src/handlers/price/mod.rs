@@ -11,11 +11,9 @@ pub async fn fetch_canister_logs() {
         Utc::now().to_string()
     );
     let state = LogPollerState::load_state().unwrap();
-
     let config = Config::get_and_persist(&None).unwrap();
-    let agent = config.get_agent().await.unwrap();
 
-    let latest_logs = get_canister_logs(config.canister, &agent, Some(state.start_timestamp))
+    let latest_logs = get_canister_logs( &config, Some(state.start_timestamp))
         .await
         .unwrap();
 
