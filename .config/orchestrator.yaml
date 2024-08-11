@@ -1,0 +1,3 @@
+url: http://127.0.0.1:4943
+canister: bkyz2-fmaaa-aaaaa-qaaaq-cai
+keyfile-path: .config/identity.pem

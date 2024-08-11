@@ -33,10 +33,9 @@ impl CronJob {
         self.scheduler.start().await?;
 
         // start an infinite loop to keep the scheduler running
-        // TODO: Figure out a way to keep the program alive or move this loop to a more centralized location
+        // NOTE: might need keep the program alive another wayor move this loop to a more centralized location
         loop {
-            sleep(Duration::from_secs(60)).await; 
-        };
-        
+            sleep(Duration::from_secs(60)).await;
+        }
     }
 }
