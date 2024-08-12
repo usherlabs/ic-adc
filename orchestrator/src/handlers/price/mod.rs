@@ -4,6 +4,7 @@ use poller::LogPollerState;
 
 pub mod poller;
 pub mod types;
+pub mod sources;
 
 /// register handlers for several orchestrator programs
 pub async fn fetch_canister_logs() {
@@ -14,14 +15,13 @@ pub async fn fetch_canister_logs() {
     let state = LogPollerState::load_state().unwrap();
     let config = Config::get_and_persist(&None).unwrap();
 
-    let latest_logs = get_canister_logs( &config, Some(state.start_timestamp))
+    let latest_valid_logs = get_canister_logs( &config, Some(state.start_timestamp))
         .await
         .unwrap();
 
     // get all the logs which meet this criteria
-    println!("logs: {:?}", latest_logs);
-    // TODO: parse the logs to extract pricing information
-    // TODO: generate proofs using redstone api and other api
+    println!("logs: {:?}", latest_valid_logs);
+    // TODO: generate proofs using redstone api and pyth api
     // TODO: send proofs to canister
 
     let updated_state = LogPollerState::default();
