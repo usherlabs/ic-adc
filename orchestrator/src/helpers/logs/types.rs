@@ -1,3 +1,5 @@
+use crate::handlers::price::types::PriceRequest;
+
 /// The type to represent DFX results.
 pub type DfxResult<T = ()> = anyhow::Result<T>;
 
@@ -5,11 +7,11 @@ pub type DfxResult<T = ()> = anyhow::Result<T>;
 pub struct EventLog {
     pub index: u64,
     pub timestamp: u64,
-    pub logs: String,
+    pub logs: PriceRequest,
 }
 
 impl EventLog {
-    pub fn new(index: u64, timestamp: u64, logs: String) -> Self {
+    pub fn new(index: u64, timestamp: u64, logs: PriceRequest) -> Self {
         Self {
             index,
             timestamp,

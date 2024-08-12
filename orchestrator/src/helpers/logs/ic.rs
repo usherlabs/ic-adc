@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Context;
 use candid::utils::ArgumentDecoder;
 use candid::{CandidType, Principal};
 use ic_agent::identity::Secp256k1Identity;
@@ -11,6 +11,7 @@ use time::OffsetDateTime;
 use super::types::DfxResult;
 use super::types::EventLog;
 use crate::config::Config;
+use crate::handlers::price::types::PriceRequest;
 
 pub const MAMANGEMENT_CANISTER_ID: &str = "aaaaa-aa";
 pub const DEFAULT_SHARED_LOCAL_BIND: &str = "127.0.0.1:4943";
@@ -23,7 +24,7 @@ fn format_bytes(bytes: &[u8]) -> String {
 }
 
 /// Create an IC agent which has been authenticated to query the logs of a canister specified
-pub async fn create_agent(config: &Config) -> Result<Agent> {
+pub async fn create_agent(config: &Config) -> anyhow::Result<Agent> {
     let identity = Secp256k1Identity::from_pem_file(&config.keyfile_path)?;
     let agent = Agent::builder()
         .with_transport(ic_agent::agent::http_transport::ReqwestTransport::create(
@@ -45,18 +46,17 @@ pub async fn create_agent(config: &Config) -> Result<Agent> {
     Ok(agent)
 }
 
-
 /// Get the raw logs from a canister
 pub async fn get_canister_logs(
     config: &Config,
     start_timestamp: Option<u64>,
-) -> Result<Vec<EventLog>> {
+) -> anyhow::Result<Vec<EventLog>> {
     let canister_id = config.canister;
     #[derive(CandidType)]
     struct In {
         canister_id: Principal,
     }
-    
+
     let agent = config.get_agent().await.unwrap();
 
     let (out,): (FetchCanisterLogsResponse,) = do_management_query_call(
@@ -82,27 +82,35 @@ pub async fn get_canister_logs(
     }
 }
 
-/// PArse the raw event logs into a well formatted `EventLog`
+/// Parse the valid event logs into a well formatted `EventLog`
 fn format_canister_logs(logs: FetchCanisterLogsResponse) -> Vec<EventLog> {
-    logs.canister_log_records
-        .into_iter()
-        .map(|r| {
-            let time = OffsetDateTime::from_unix_timestamp_nanos(r.timestamp_nanos as i128)
-                .expect("Invalid canister log record timestamp");
+    let mut valid_logs = vec![];
+    logs.canister_log_records.into_iter().for_each(|r| {
+        let time = OffsetDateTime::from_unix_timestamp_nanos(r.timestamp_nanos as i128)
+            .expect("Invalid canister log record timestamp");
 
-            let message = if let Ok(s) = String::from_utf8(r.content.clone()) {
-                if format!("{s:?}").contains("\\u{") {
-                    format_bytes(&r.content)
-                } else {
-                    s
-                }
-            } else {
+        let message = if let Ok(s) = String::from_utf8(r.content.clone()) {
+            if format!("{s:?}").contains("\\u{") {
                 format_bytes(&r.content)
-            };
+            } else {
+                s
+            }
+        } else {
+            format_bytes(&r.content)
+        };
 
-            EventLog::new(r.idx, time.unix_timestamp() as u64, message)
-        })
-        .collect()
+        let parsed_message_result: Result<PriceRequest, serde_json::Error> =
+            serde_json::from_str(&message);
+        if parsed_message_result.is_ok() {
+            valid_logs.push(EventLog::new(
+                r.idx,
+                time.unix_timestamp() as u64,
+                parsed_message_result.unwrap(),
+            ))
+        }
+    });
+
+    valid_logs
 }
 
 async fn do_management_query_call<A, O>(

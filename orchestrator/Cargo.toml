@@ -11,6 +11,7 @@ anyhow = "1.0.86"
 dotenv = "0.15.0"
 serde = "1.0"
 serde_json = "1.0"
+serde_yaml = "0.9"
 candid = "0.10.4"
 candid_parser = "0.1.4"
 ic-agent = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
@@ -24,5 +25,4 @@ time = { version = "0.3.9", features = [
     "serde-human-readable",
 ] }
 hex = { version = "0.4.3", features = ["serde"] }
-serde_yaml = "0.9"
 chrono = "0.4"

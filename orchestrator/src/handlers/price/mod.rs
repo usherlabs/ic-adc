@@ -3,6 +3,7 @@ use chrono::prelude::*;
 use poller::LogPollerState;
 
 pub mod poller;
+pub mod types;
 
 /// register handlers for several orchestrator programs
 pub async fn fetch_canister_logs() {
