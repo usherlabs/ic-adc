@@ -1,25 +1,26 @@
 use anyhow::{Ok, Result};
 use serde_json::Value;
 
+use crate::handlers::price::traits::PricingDataSource;
+
 #[derive(Debug)]
 pub struct Redstone {
-    pub price: Option<f64>,
 }
 
-impl Redstone {
-    pub fn new() -> Self {
-        Self { price: None }
+impl PricingDataSource for Redstone {
+    fn new() -> Self {
+        Self {}
     }
 
-    fn get_url(ticker: String) -> Result<String> {
+    async fn get_url(ticker: String) -> Result<String> {
         Ok(format!(
             "https://api.redstone.finance/prices?symbol={ticker}&provider=redstone&limit=1"
         ))
     }
 
-    /// set and get latest price data from redstone api
-    pub async fn get_price(ticker: String) -> Result<f64> {
-        let request_url = Self::get_url(ticker)?;
+    /// get latest price data for a currency from redstone api
+    async fn get_price(ticker: String) -> Result<f64> {
+        let request_url = Self::get_url(ticker).await?;
         // Send a GET request to the API
         //TODO: use the verity prover to get some data
         let response = reqwest::get(&request_url).await?.text().await?;
@@ -35,32 +36,18 @@ impl Redstone {
         }
     }
 
-    // get pair price "BTC/USDT"
-    pub async fn get_pair_price(currency_pair: String) -> Result<f64>{
+    /// Get pair price i.e "BTC/USDT"
+    async fn get_pair_price(currency_pair: String) -> Result<f64>{
         // Split the string into an iterator of substrings
         let parts: Vec<&str> = currency_pair.split('/').collect();
 
-        // Assuming the first part is the base and the second part is the quote
-        let quote = parts.get(0).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
-        let base = parts.get(1).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
+        // Assuming the first part is the quote and the second part is the base
+        let base = parts.get(0).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
+        let quote = parts.get(1).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
 
-        let quote_price = Self::get_price(quote).await?;
         let base_price = Self::get_price(base).await?;
+        let quote_price = Self::get_price(quote).await?;
 
-        Ok(quote_price / base_price)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*; // Import everything from the parent module
-
-    #[tokio::test]
-    async fn it_works() {
-        let ticker = "FTM";
-        let result = Redstone::get_price(ticker.to_string()).await.unwrap();
-
-        println!("{}", result);
-        // assert_eq!(result, 4); // Assert that the result is equal to 4
+        Ok(base_price / quote_price)
     }
 }

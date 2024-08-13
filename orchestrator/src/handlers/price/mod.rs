@@ -5,6 +5,7 @@ use poller::LogPollerState;
 pub mod poller;
 pub mod types;
 pub mod sources;
+pub mod traits;
 
 /// register handlers for several orchestrator programs
 pub async fn fetch_canister_logs() {
