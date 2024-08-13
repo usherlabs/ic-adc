@@ -14,6 +14,7 @@ use super::{
 /// communicate data requested by the ADC
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct PriceRequest {
+    // a vector of strings representing the currency pair e.b ["BTC", "BTC/USDT"]
     pub pairs: Vec<String>,
     // add other proprties about the price here
 }
@@ -53,10 +54,15 @@ impl PriceResponse {
 /// a struct representing a currency pair
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct CurrencyPair {
+    /// the base currency
     base: String,
+    /// the quote currency
     quote: String,
+    /// the price aggregated from several sources
     price: Option<f64>,
+    /// each price represents a different source
     sources: Option<Vec<f64>>,
+    /// a string representation of the price pair "USDT/BTC"
     repr: String,
 }
 
