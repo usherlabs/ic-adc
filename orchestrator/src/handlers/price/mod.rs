@@ -4,7 +4,7 @@ use crate::{
 };
 use chrono::prelude::*;
 use poller::LogPollerState;
-use types::{CurrencyPair, PriceResponse};
+use types::PriceResponse;
 
 pub mod poller;
 pub mod sources;
