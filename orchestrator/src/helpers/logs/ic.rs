@@ -32,7 +32,6 @@ pub async fn create_agent(config: &Config) -> anyhow::Result<Agent> {
         )?)
         .with_boxed_identity(Box::new(identity))
         .with_verify_query_signatures(true)
-        // .with_ingress_expiry(Some(Duration::from_secs(480)))
         .build()?;
 
     let is_mainnet = matches!(
