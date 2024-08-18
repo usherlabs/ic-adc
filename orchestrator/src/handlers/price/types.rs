@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use anyhow::Result;
+use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
 use crate::handlers::price::DEFAULT_BASE_CURRENCY;
@@ -14,15 +15,27 @@ use super::{
 /// communicate data requested by the ADC
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct PriceRequest {
-    // a vector of strings representing the currency pair e.b ["BTC", "BTC/USDT"]
+    /// the id of this request
+    pub id: String,
+    /// the principal of the canister which originated this request
+    pub owner: Principal,
+    /// a vector of strings representing the currency pair e.b ["BTC", "BTC/USDT"]
     pub pairs: Vec<String>,
     // add other proprties about the price here
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
 pub struct PriceResponse {
+    /// the id of this request
+    pub id: String,
+    /// the principal of the canister which originated this request
+    pub owner: Principal,
+    /// the pairs to be processed, currently these are currency pairs but they will eventually be proofs
     pub pairs: Vec<CurrencyPair>,
-    processed: bool,
+    /// when we `convert` a request to a response, the price/proof information is not fetched yet
+    /// this property indicates if the metadata information about this request has been succesfully fetched
+    /// and is ready to be sent to the canister
+    pub processed: bool,
 }
 
 impl From<PriceRequest> for PriceResponse {
@@ -34,6 +47,8 @@ impl From<PriceRequest> for PriceResponse {
             .collect();
 
         Self {
+            id: request.id,
+            owner: request.owner,
             pairs,
             processed: false,
         }
@@ -52,7 +67,7 @@ impl PriceResponse {
 }
 
 /// a struct representing a currency pair
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
 pub struct CurrencyPair {
     /// the base currency
     base: String,

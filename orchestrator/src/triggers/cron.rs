@@ -6,9 +6,12 @@ pub async fn load_cron() -> Result<CronJob, JobSchedulerError> {
 
     // add jobs to the cronjob
     cronjob
-        .add_job(Job::new_async("1/50 * * * * *", |_, _| {
+        .add_job(Job::new_async("1/60 * * * * *", |_, _| {
             Box::pin(async {
-                let _ = fetch_canister_logs().await;
+                let res = fetch_canister_logs().await;
+                if let Err(e) = res {
+                    println!("Error fetching canister logs: {}", e);
+                }
             })
         })?)
         .await?;
