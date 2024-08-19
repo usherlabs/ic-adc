@@ -11,7 +11,7 @@ use time::OffsetDateTime;
 use super::types::DfxResult;
 use super::types::EventLog;
 use crate::config::Config;
-use crate::handlers::price::types::PriceRequest;
+use crate::handlers::price::types::Request;
 
 pub const MAMANGEMENT_CANISTER_ID: &str = "aaaaa-aa";
 pub const DEFAULT_SHARED_LOCAL_BIND: &str = "127.0.0.1:4943";
@@ -99,7 +99,7 @@ fn format_canister_logs(logs: FetchCanisterLogsResponse) -> Vec<EventLog> {
             format_bytes(&r.content)
         };
 
-        let parsed_message_result: Result<PriceRequest, serde_json::Error> =
+        let parsed_message_result: Result<Request, serde_json::Error> =
             serde_json::from_str(&message);
         if parsed_message_result.is_ok() {
             valid_logs.push(EventLog::new(

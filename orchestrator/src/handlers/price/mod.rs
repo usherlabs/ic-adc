@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 use chrono::prelude::*;
 use poller::LogPollerState;
-use types::PriceResponse;
+use types::Response;
 
 pub mod poller;
 pub mod sources;
@@ -26,13 +26,15 @@ pub async fn fetch_canister_logs() -> Result<()> {
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
+
+    if latest_valid_logs.len() == 0 {
+        return Ok(());
+    };
     println!("Processing {} valid logs", latest_valid_logs.len());
 
     // generate proofs using redstone api and pyth api
     let responses = fetch_pricing_data(latest_valid_logs).await;
     println!("Processed {} valid logs", responses.len());
-
-    if responses.len() == 0 {return Ok(())}
 
     let agent = config.get_agent().await?;
     for response in responses {
@@ -51,19 +53,24 @@ pub async fn fetch_canister_logs() -> Result<()> {
     Ok(())
 }
 
-pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<PriceResponse> {
-    let mut responses: Vec<PriceResponse> = vec![];
+pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<Response> {
+    let mut responses: Vec<Response> = vec![];
 
     for event in event_logs {
-        let price_request = event.logs.clone();
-        let mut price_response = PriceResponse::from(price_request);
+        let request = event.logs.clone();
+        let request_options: types::RequestOpts = request.clone().opts;
+        let mut price_response = Response::from(request);
 
-        // TODO: error handling for when the price fails to process
-        if price_response.process_prices().await.is_ok() {
-            responses.push(price_response);
-        } else {
-            println!("Failed to process pricing data:{:?}", event)
+        if request_options.price {
+            // TODO: error handling for when the price fails to process
+            if price_response.process_prices().await.is_ok() {
+                responses.push(price_response);
+            } else {
+                println!("Failed to process pricing data:{:?}", event)
+            }
         }
+
+        //TODO: check for other request options to fetch other details
     }
 
     responses

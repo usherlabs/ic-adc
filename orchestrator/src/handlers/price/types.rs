@@ -14,7 +14,7 @@ use super::{
 /// a struct which would be used to
 /// communicate data requested by the ADC
 #[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct PriceRequest {
+pub struct Request {
     /// the id of this request
     pub id: String,
     /// the principal of the canister which originated this request
@@ -22,10 +22,11 @@ pub struct PriceRequest {
     /// a vector of strings representing the currency pair e.b ["BTC", "BTC/USDT"]
     pub pairs: Vec<String>,
     // add other proprties about the price here
+    pub opts: RequestOpts
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
-pub struct PriceResponse {
+pub struct Response {
     /// the id of this request
     pub id: String,
     /// the principal of the canister which originated this request
@@ -38,8 +39,8 @@ pub struct PriceResponse {
     pub processed: bool,
 }
 
-impl From<PriceRequest> for PriceResponse {
-    fn from(request: PriceRequest) -> Self {
+impl From<Request> for Response {
+    fn from(request: Request) -> Self {
         let pairs: Vec<CurrencyPair> = request
             .pairs
             .iter()
@@ -55,7 +56,7 @@ impl From<PriceRequest> for PriceResponse {
     }
 }
 
-impl PriceResponse {
+impl Response {
     pub async fn process_prices(&mut self) -> Result<()> {
         for pair in &mut self.pairs {
             pair.fetch_prices().await?; // Assuming fetch_data returns a Future
@@ -74,11 +75,28 @@ pub struct CurrencyPair {
     /// the quote currency
     quote: String,
     /// the price aggregated from several sources
-    price: Option<f64>,
-    /// each price represents a different source
-    sources: Option<Vec<f64>>,
+    price: Option<InformationDetails>,
+    // TODO: add in other properties
     /// a string representation of the price pair "USDT/BTC"
     repr: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+pub struct InformationDetails {
+    value: f64,
+    sources: Vec<f64>,
+}
+
+impl InformationDetails {
+    fn new(value: f64, sources: Vec<f64>) -> Self {
+        Self { value, sources }
+    }
+}
+
+
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+pub struct RequestOpts {
+    pub price: bool,
 }
 
 impl CurrencyPair {
@@ -93,8 +111,7 @@ impl CurrencyPair {
         let sources = vec![redstone_price, pyth_price];
         let consensus_price = Self::resolve_prices(&sources);
 
-        self.sources = Some(sources);
-        self.price = Some(consensus_price);
+        self.price = Some(InformationDetails::new(consensus_price, sources));
 
         Ok(())
     }
@@ -129,8 +146,7 @@ impl TryFrom<String> for CurrencyPair {
             base: base.to_string(),
             quote: quote.to_string(),
             repr: currency_pair,
-            price: None,
-            sources: None,
+            price: None
         })
     }
 }

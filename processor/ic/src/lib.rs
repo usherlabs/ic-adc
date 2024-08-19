@@ -3,7 +3,7 @@ use core::panic;
 use ic_cdk::{api::time, println};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
-use types::{PriceRequest, PriceResponse};
+use types::{Request, RequestOpts, Response};
 use verity_dp_ic::{owner, whitelist};
 
 pub mod types;
@@ -40,7 +40,7 @@ async fn remove_from_whitelist(principal: Principal) {
 /// where `currency_pairs` is a comma seperated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
-fn request_prices(currency_pairs: String) -> String {
+fn request_prices(currency_pairs: String, opts: RequestOpts) -> String {
     let caller_principal = ic_cdk::caller();
     let request_id = time().to_string();
     if !whitelist::is_whitelisted(caller_principal) {
@@ -52,7 +52,7 @@ fn request_prices(currency_pairs: String) -> String {
     // creates a price request object with an arb id
     // attach a buffer with valid pending id's
     // include the caller canister's id to know who to send a response to
-    let price_request = PriceRequest::new(request_id.clone(), caller_principal, currency_pairs);
+    let price_request = Request::new(request_id.clone(), caller_principal, currency_pairs, opts);
 
     let price_request_stringified = serde_json::to_string(&price_request).unwrap();
     // log the price request to be picked up by the orchestrator
@@ -66,7 +66,7 @@ fn request_prices(currency_pairs: String) -> String {
 #[update]
 /// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
 /// it would receive the response for a request made and forward it to the requesting canister
-async fn submit_price_response(response: PriceResponse) {
+async fn submit_price_response(response: Response) {
     // only owner(orchestrator) can call
     owner::only_owner();
     // validate that id is present in buffer
@@ -78,7 +78,7 @@ async fn submit_price_response(response: PriceResponse) {
 
     // call function and get response
     let _call_result: Result<(), _> =
-        ic_cdk::call(response.owner, "receive_prices", (response,)).await;
+        ic_cdk::call(response.owner, "receive_price_response", (response,)).await;
 }
 
 #[query]
