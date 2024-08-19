@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::helpers::logs::ic::MAMANGEMENT_CANISTER_ID;
+use crate::helpers::logs::ic::{DEFAULT_JOB_SCHEDULE, MAMANGEMENT_CANISTER_ID};
 use crate::helpers::utils::get_root_path;
 
 use super::helpers::logs::ic::{create_agent, DEFAULT_IDENTITY_PATH, DEFAULT_SHARED_LOCAL_BIND};
@@ -23,6 +23,8 @@ pub struct Config {
     pub canister: Principal,
     /// The path to the pem keyfile to generate an identity from
     pub keyfile_path: String,
+    /// The schedule of the job to poll the canister logs
+    pub job_schedule: String
 }
 
 impl Default for Config {
@@ -32,11 +34,13 @@ impl Default for Config {
         let canister_principal =
             Principal::from_str(&canister_principal).expect("invalid CANISTER_PRINCIPAL");
         let keyfile_path = DEFAULT_IDENTITY_PATH.to_string();
+        let job_schedule: String = DEFAULT_JOB_SCHEDULE.to_string();
 
         Self {
             url: icp_url,
             canister: canister_principal,
             keyfile_path: keyfile_path,
+            job_schedule
         }
     }
 }

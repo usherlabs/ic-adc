@@ -47,8 +47,7 @@ pub async fn fetch_canister_logs() -> Result<()> {
     let updated_state = LogPollerState::default();
     updated_state.save_state()?;
 
-    //TODO: use tracing instead of println
-    println!("Responses pushed to canister");
+    println!("Responses pushed to canister\n");
     Ok(())
 }
 

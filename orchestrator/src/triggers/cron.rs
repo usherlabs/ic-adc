@@ -1,12 +1,13 @@
-use crate::{handlers::price::fetch_canister_logs, helpers::cron::CronJob};
+use crate::{config::Config, handlers::price::fetch_canister_logs, helpers::cron::CronJob};
 use tokio_cron_scheduler::{Job, JobSchedulerError};
 
 pub async fn load_cron() -> Result<CronJob, JobSchedulerError> {
     let cronjob = CronJob::new().await;
+    let config: Config = Config::get_and_persist(&None).unwrap();
 
     // add jobs to the cronjob
     cronjob
-        .add_job(Job::new_async("1/60 * * * * *", |_, _| {
+        .add_job(Job::new_async(&config.job_schedule[..], |_, _| {
             Box::pin(async {
                 let res = fetch_canister_logs().await;
                 if let Err(e) = res {

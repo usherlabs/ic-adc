@@ -27,5 +27,6 @@ time = { version = "0.3.9", features = [
 hex = { version = "0.4.3", features = ["serde"] }
 chrono = "0.4"
 reqwest = "0.12.5"
-# statrs = "0.14.0"
-
+eyre = "0.6"
+tracing = "0.1"
+tracing-subscriber = "0.3"

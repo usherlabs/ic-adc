@@ -18,6 +18,7 @@ pub const DEFAULT_SHARED_LOCAL_BIND: &str = "127.0.0.1:4943";
 pub const DEFAULT_IC_GATEWAY: &str = "https://icp0.io";
 pub const DEFAULT_IC_GATEWAY_TRAILING_SLASH: &str = "https://icp0.io/";
 pub const DEFAULT_IDENTITY_PATH: &str = "identity.pem";
+pub const DEFAULT_JOB_SCHEDULE: &str = "1/60 * * * * *";
 
 fn format_bytes(bytes: &[u8]) -> String {
     format!("(bytes) 0x{}", hex::encode(bytes))
