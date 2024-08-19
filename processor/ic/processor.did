@@ -1,0 +1,26 @@
+type CurrencyPair = record {
+    base: text;
+    quote: text;
+    price: opt float64;
+    sources: opt vec float64;
+    repr: text;
+};
+
+type PriceResponse = record {
+    id: text;
+    owner: principal;
+    pairs: vec CurrencyPair;
+    processed: bool;
+};
+
+service : {
+    "name": () -> (text) query;
+    // whitelist operations
+    "add_to_whitelist": (canister_principal: principal) -> ();
+    "remove_from_whitelist": (canister_principal: principal) -> ();
+    "is_canister_whitelisted": (canister_principal: principal) -> (bool) query;
+    
+    // price request/response operations
+    "request_prices": (comma_seperated_pairs: text) -> (text);
+    "submit_price_response": (price_response_stringified: PriceResponse) -> ();
+}

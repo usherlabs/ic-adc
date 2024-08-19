@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "processor": {
+      "candid": "processor.did",
+      "package": "processor",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

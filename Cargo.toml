@@ -1,6 +1,7 @@
 [workspace]
 members = [
-  "orchestrator"
+  "orchestrator",
+  "processor/ic"
 ]
 resolver = "2"
 
