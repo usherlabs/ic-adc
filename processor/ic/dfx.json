@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "processor": {
-      "candid": "processor.did",
-      "package": "processor",
+    "adc": {
+      "candid": "adc.did",
+      "package": "adc",
       "type": "rust"
     }
   },

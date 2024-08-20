@@ -21,6 +21,6 @@ service : {
     "is_canister_whitelisted": (canister_principal: principal) -> (bool) query;
     
     // price request/response operations
-    "request_prices": (comma_seperated_pairs: text) -> (text);
-    "submit_price_response": (price_response_stringified: PriceResponse) -> ();
+    "request_data": (comma_seperated_pairs: text) -> (text);
+    "receive_orchestrator_response": (price_response_stringified: PriceResponse) -> ();
 }

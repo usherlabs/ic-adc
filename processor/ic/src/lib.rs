@@ -40,7 +40,7 @@ async fn remove_from_whitelist(principal: Principal) {
 /// where `currency_pairs` is a comma seperated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
-fn request_prices(currency_pairs: String, opts: RequestOpts) -> String {
+fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     let caller_principal = ic_cdk::caller();
     let request_id = time().to_string();
     if !whitelist::is_whitelisted(caller_principal) {
@@ -66,7 +66,7 @@ fn request_prices(currency_pairs: String, opts: RequestOpts) -> String {
 #[update]
 /// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
 /// it would receive the response for a request made and forward it to the requesting canister
-async fn submit_price_response(response: Response) {
+async fn receive_orchestrator_response(response: Response) {
     // only owner(orchestrator) can call
     owner::only_owner();
     // validate that id is present in buffer
@@ -78,7 +78,7 @@ async fn submit_price_response(response: Response) {
 
     // call function and get response
     let _call_result: Result<(), _> =
-        ic_cdk::call(response.owner, "receive_price_response", (response,)).await;
+        ic_cdk::call(response.owner, "receive_adc_response", (response,)).await;
 }
 
 #[query]

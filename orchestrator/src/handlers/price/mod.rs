@@ -40,7 +40,7 @@ pub async fn fetch_canister_logs() -> Result<()> {
     for response in responses {
         // let payload = serde_json::to_string(&response)?;
         agent
-            .update(&response.owner, "receive_price_response")
+            .update(&config.canister, "receive_orchestrator_response")
             .with_arg(candid::encode_args((response,))?)
             .call_and_wait()
             .await?;

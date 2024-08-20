@@ -3,6 +3,20 @@
 version = 3
 
 [[package]]
+name = "adc"
+version = "0.1.0"
+dependencies = [
+ "candid 0.7.18",
+ "ic-cdk 0.5.7",
+ "ic-cdk-macros 0.5.7",
+ "ic-cdk-timers",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "verity_dp_ic",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2593,20 +2607,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "processor"
-version = "0.1.0"
-dependencies = [
- "candid 0.7.18",
- "ic-cdk 0.5.7",
- "ic-cdk-macros 0.5.7",
- "ic-cdk-timers",
- "serde",
- "serde_derive",
- "serde_json",
- "verity_dp_ic",
 ]
 
 [[package]]
