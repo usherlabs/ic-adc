@@ -8,13 +8,13 @@ The ADC serves as an example of using the Internet Computer (IC) as a decentrali
 
 ## Data Supported & Roadmap
 
-[x] Cryptocurrency Asset Prices
-[ ] Cryptocurrency Asset Market Capitalisations
-[ ] Cryptocurrency Asset Volume
-[ ] Cryptocurrency Asset Uniswap Liquidity
-[ ] Cryptocurrency Asset Token Holder Count
-[ ] Arbitrary EVM Blockchain Data
-[ ] IoT Data (Streamr & Helium)
+- [x] Cryptocurrency Asset Prices
+- [ ] Cryptocurrency Asset Market Capitalisations
+- [ ] Cryptocurrency Asset Volume
+- [ ] Cryptocurrency Asset Uniswap Liquidity
+- [ ] Cryptocurrency Asset Token Holder Count
+- [ ] Arbitrary EVM Blockchain Data
+- [ ] IoT Data (Streamr & Helium)
 
 ## Getting Started
 
