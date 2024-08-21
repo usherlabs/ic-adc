@@ -22,9 +22,8 @@ The ADC works similarly to the native [IC Exchange Rate Canister](https://github
 
 You can find an example of this implementation in the [`example_caller`](./example_caller) folder.
 
-:::note 
-Currently, your calling canister must be whitelisted. To get whitelisted, [please contact Usher Labs directly](https://www.usher.so/contact/), or [join our Discord](https://go.usher.so/discord).
-:::
+> [!NOTE]
+> Currently, your calling canister must be whitelisted. To get whitelisted, [please contact Usher Labs directly](https://www.usher.so/contact/), or [join our Discord](https://go.usher.so/discord).
 
 ### Overview
 
