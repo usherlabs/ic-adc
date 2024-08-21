@@ -1,0 +1,25 @@
+type CurrencyPair = record {
+    base: text;
+    quote: text;
+    price: opt InformationDetails;
+    repr: text;
+};
+
+type InformationDetails = record {
+    value: float64;
+    sources: vec float64;
+};
+
+
+type Response = record {
+    id: text;
+    owner: principal;
+    pairs: vec CurrencyPair;
+    processed: bool;
+};
+
+
+service : {
+    "submit_adc_request": (text) -> (text);
+    "receive_adc_response": (Response) -> ();
+}

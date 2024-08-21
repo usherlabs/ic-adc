@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "adc_caller": {
+      "candid": "src/adc_caller/adc_caller.did",
+      "package": "adc_caller",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
