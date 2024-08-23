@@ -8,7 +8,7 @@ pub const DEFAULT_PROVER_ZMQ_URL: &str = "tcp://127.0.0.1:8000";
 pub const DEFAULT_ANALYSIS_URL: &str = "http://127.0.0.1:8000";
 
 pub fn get_verity_client() -> VerityClient {
-    let config = Config::get_and_persist(&None).unwrap();
+    let config = Config::env();
     let mut rng = rand::thread_rng();
     let signing_key = SigningKey::random(&mut rng);
 

@@ -17,3 +17,18 @@ pub fn get_utc_timestamp() -> u64 {
 
     since_the_epoch.as_secs()
 }
+
+/// Get env var or default to value provided
+pub fn get_env_or_default(key: &str, default: &str) -> String {
+    env::var(key).unwrap_or_else(|_| default.to_string())
+}
+
+/// Get env var or default to none
+pub fn get_env_or_none(key: &str) -> Option<String> {
+    let val = env::var(key);
+    if val.is_err() {
+        None
+    } else {
+        Some(val.unwrap())
+    }
+}
