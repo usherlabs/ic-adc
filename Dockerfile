@@ -1,4 +1,4 @@
-# initial buider image to compile the orchestrator into a 
+# initial buider image to compile the orchestrator into an executable binary
 FROM rust:bookworm AS build
 WORKDIR /verityprogram
 COPY ./orchestrator ./
@@ -16,7 +16,8 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y --no-install-reco
 WORKDIR /verityprogram
 # copy the build artifact and config from the build stage
 COPY --from=build /verityprogram/target/release/orchestrator .
-COPY --from=build /verityprogram/.config ./.config
+COPY --from=build /verityprogram/.env .
+COPY --from=build /verityprogram/identity.pem .
 
 # set the startup command to run your binary
 CMD ["./orchestrator"]
