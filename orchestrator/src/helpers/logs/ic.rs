@@ -14,10 +14,10 @@ use crate::config::Config;
 use crate::handlers::price::types::Request;
 
 pub const MAMANGEMENT_CANISTER_ID: &str = "aaaaa-aa";
-pub const DEFAULT_SHARED_LOCAL_BIND: &str = "127.0.0.1:4943";
+pub const DEFAULT_SHARED_LOCAL_BIND: &str = "http://127.0.0.1:4943";
 pub const DEFAULT_IC_GATEWAY: &str = "https://icp0.io";
 pub const DEFAULT_IC_GATEWAY_TRAILING_SLASH: &str = "https://icp0.io/";
-pub const DEFAULT_IDENTITY_PATH: &str = "identity.pem";
+pub const DEFAULT_IDENTITY_PATH: &str = "./identity.pem";
 pub const DEFAULT_JOB_SCHEDULE: &str = "1/60 * * * * *";
 
 fn format_bytes(bytes: &[u8]) -> String {
