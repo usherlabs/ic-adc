@@ -3,13 +3,10 @@ use candid::Principal;
 use ic_agent::Agent;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
 
 use crate::helpers::logs::ic::{DEFAULT_JOB_SCHEDULE, MAMANGEMENT_CANISTER_ID};
-use crate::helpers::utils::get_root_path;
+use crate::helpers::utils::{get_env_or_default, get_env_or_none};
+use crate::helpers::verity::{DEFAULT_PROVER_URL, DEFAULT_PROVER_ZMQ_URL};
 
 use super::helpers::logs::ic::{create_agent, DEFAULT_IDENTITY_PATH, DEFAULT_SHARED_LOCAL_BIND};
 
@@ -24,25 +21,13 @@ pub struct Config {
     /// The path to the pem keyfile to generate an identity from
     pub keyfile_path: String,
     /// The schedule of the job to poll the canister logs
-    pub job_schedule: String
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        let icp_url = DEFAULT_SHARED_LOCAL_BIND.to_string();
-        let canister_principal = MAMANGEMENT_CANISTER_ID.to_string();
-        let canister_principal =
-            Principal::from_str(&canister_principal).expect("invalid CANISTER_PRINCIPAL");
-        let keyfile_path = DEFAULT_IDENTITY_PATH.to_string();
-        let job_schedule: String = DEFAULT_JOB_SCHEDULE.to_string();
-
-        Self {
-            url: icp_url,
-            canister: canister_principal,
-            keyfile_path: keyfile_path,
-            job_schedule
-        }
-    }
+    pub job_schedule: String,
+    /// HTTP URL of the prover
+    pub prover_url: String,
+    /// ZMQ URL of the prover
+    pub prover_zmq_url: String,
+    /// analysis URL
+    pub analysis_url: Option<String>,
 }
 
 impl Config {
@@ -52,45 +37,25 @@ impl Config {
         Ok(agent)
     }
 
-    /// Gets the configuration either read from specified location or from
-    /// the default location. If there is no file at the default location,
-    /// it creates the file with default values.
-    pub fn get_and_persist(config: &Option<PathBuf>) -> Result<Config> {
-        let config_location = if let Some(config) = config {
-            fs::canonicalize(config).unwrap()
-        } else {
-            let default_location = default_config_location("orchestrator");
+    pub fn env() -> Self {
+        let icp_url = get_env_or_default("ICP_URL", DEFAULT_SHARED_LOCAL_BIND);
+        let canister_principal = get_env_or_default("ADC_CANISTER", MAMANGEMENT_CANISTER_ID);
+        let canister_principal =
+            Principal::from_str(&canister_principal[..]).expect("invalid CANISTER_PRINCIPAL");
+        let keyfile_path = get_env_or_default("ICP_IDENTITY_FILEPATH", DEFAULT_IDENTITY_PATH);
+        let job_schedule = get_env_or_default("JOB_SCHEDULE", DEFAULT_JOB_SCHEDULE);
+        let prover_url = get_env_or_default("PROVER_URL", DEFAULT_PROVER_URL);
+        let prover_zmq_url = get_env_or_default("PROVER_ZMQ_URL", DEFAULT_PROVER_ZMQ_URL);
+        let analysis_url = get_env_or_none("ANALYSIS_URL");
 
-            if !Path::exists(&default_location) {
-                let default_config = Config::default();
-                write_config_file(&default_config, &default_location)?;
-            }
-
-            default_location
-        };
-
-        read_config_file(&config_location)
+        Self {
+            url: icp_url,
+            canister: canister_principal,
+            keyfile_path: keyfile_path,
+            job_schedule: job_schedule,
+            prover_url: prover_url,
+            prover_zmq_url: prover_zmq_url,
+            analysis_url: analysis_url,
+        }
     }
-}
-
-/// Gets the default location the config file should reside in
-pub fn default_config_location(node: &str) -> PathBuf {
-    get_root_path(".config").join(format!("{node}.yaml"))
-}
-
-/// Read a yaml configuration file into a struct
-pub fn read_config_file(location: &PathBuf) -> Result<Config> {
-    let file = std::fs::File::open(location)?;
-    let config: Config = serde_yaml::from_reader(file)?;
-
-    Ok(config)
-}
-
-/// Write a yaml configuration struct into a file
-pub fn write_config_file(config: &Config, location: &PathBuf) -> Result<()> {
-    let prefix = location.parent().unwrap();
-    std::fs::create_dir_all(prefix).unwrap();
-
-    let value = serde_yaml::to_string(config).unwrap();
-    Ok(fs::write(location, &value)?)
 }
