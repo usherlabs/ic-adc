@@ -10,6 +10,7 @@ use std::{
 
 use crate::helpers::logs::ic::{DEFAULT_JOB_SCHEDULE, MAMANGEMENT_CANISTER_ID};
 use crate::helpers::utils::get_root_path;
+use crate::helpers::verity::{DEFAULT_ANALYSIS_URL, DEFAULT_PROVER_URL};
 
 use super::helpers::logs::ic::{create_agent, DEFAULT_IDENTITY_PATH, DEFAULT_SHARED_LOCAL_BIND};
 
@@ -24,7 +25,13 @@ pub struct Config {
     /// The path to the pem keyfile to generate an identity from
     pub keyfile_path: String,
     /// The schedule of the job to poll the canister logs
-    pub job_schedule: String
+    pub job_schedule: String,
+    /// HTTP URL of the prover
+    pub prover_url: String,
+    /// ZMQ URL of the prover
+    pub prover_zmq_url: String,
+    /// analysis URL
+    pub analysis_url: Option<String>
 }
 
 impl Default for Config {
@@ -34,13 +41,19 @@ impl Default for Config {
         let canister_principal =
             Principal::from_str(&canister_principal).expect("invalid CANISTER_PRINCIPAL");
         let keyfile_path = DEFAULT_IDENTITY_PATH.to_string();
-        let job_schedule: String = DEFAULT_JOB_SCHEDULE.to_string();
+        let job_schedule = DEFAULT_JOB_SCHEDULE.to_string();
+        let prover_url = DEFAULT_PROVER_URL.to_string();
+        let prover_zmq_url = DEFAULT_PROVER_URL.to_string();
+        let analysis_url = DEFAULT_ANALYSIS_URL.to_string();
 
         Self {
             url: icp_url,
             canister: canister_principal,
             keyfile_path: keyfile_path,
-            job_schedule
+            job_schedule,
+            prover_url,
+            prover_zmq_url,
+            analysis_url: Some(analysis_url),
         }
     }
 }

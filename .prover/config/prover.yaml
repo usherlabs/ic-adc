@@ -1,0 +1,9 @@
+mode: Dev
+port: 8080
+publish-socket: /tmp/verity/publish.socket
+request-socket: /tmp/verity/request.socket
+notary-gateway: 127.0.0.1
+notary-host: 127.0.0.1
+notary-port: 7047
+cert-url: tlsnotaryserver.io
+proofs-dir: ../proofs

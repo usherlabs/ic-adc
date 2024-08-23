@@ -1,4 +1,4 @@
-use crate::handlers::price::traits::PricingDataSource;
+use crate::{handlers::price::traits::PricingDataSource, helpers::verity::get_verity_client};
 use anyhow::{Ok, Result};
 use serde_json::Value;
 
@@ -9,7 +9,7 @@ impl Pyth {
     /// Given a ticker(e.g USDT) it should return the ID associated with it
     pub async fn get_ticker_id(ticker: String) -> Result<String> {
         let quote_currency_to_find = "USD"; // Quote currency you're looking for
-        // TODO: we could cache this api call then refresh it on a daily basis using a cronjob
+                                            // TODO: we could cache this api call then refresh it on a daily basis using a cronjob
         let request_url = "https://hermes.pyth.network/v2/price_feeds".to_string();
 
         let mut ticker_id: Option<String> = None;
@@ -48,8 +48,16 @@ impl PricingDataSource for Pyth {
     async fn get_price(ticker: String) -> Result<f64> {
         let request_url = Self::get_url(ticker).await?;
         // Send a GET request to the API
-        //TODO: use the verity prover to get some data
-        let response = reqwest::get(&request_url).await?.text().await?;
+        let verity_client = get_verity_client();
+        let response = verity_client
+            .get(&request_url)
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+        // let response = reqwest::get(&request_url).await?.text().await?;
 
         // // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
