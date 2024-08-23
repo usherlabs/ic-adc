@@ -9,12 +9,14 @@ use crate::helpers::utils::{get_root_path, get_utc_timestamp};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct LogPollerState {
     pub start_timestamp: u64,
+    pub locked: bool,
 }
 
 impl Default for LogPollerState {
     fn default() -> Self {
         Self {
             start_timestamp: get_utc_timestamp(),
+            locked: false,
         }
     }
 }
@@ -22,6 +24,18 @@ impl Default for LogPollerState {
 impl LogPollerState {
     pub fn get_struct_name() -> &'static str {
         type_name::<Self>().split(":").last().unwrap()
+    }
+
+    /// lock the state
+    pub fn lock_state(&mut self) -> Result<()> {
+        self.locked = true;
+        self.save_state()
+    }
+
+    /// lock the state
+    pub fn unlock_state(&mut self) -> Result<()> {
+        self.locked = false;
+        self.save_state()
     }
 
     /// save this struct to a particular point in state

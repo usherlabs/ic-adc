@@ -1,4 +1,8 @@
-use crate::{config::Config, handlers::price::fetch_canister_logs, helpers::cron::CronJob};
+use crate::{
+    config::Config,
+    handlers::price::{fetch_canister_logs, poller::LogPollerState},
+    helpers::cron::CronJob,
+};
 use tokio_cron_scheduler::{Job, JobSchedulerError};
 
 pub async fn load_cron() -> Result<CronJob, JobSchedulerError> {
@@ -12,7 +16,13 @@ pub async fn load_cron() -> Result<CronJob, JobSchedulerError> {
                 let res = fetch_canister_logs().await;
                 if let Err(e) = res {
                     println!("Error fetching canister logs: {}", e);
+                    LogPollerState::load_state()
+                        .unwrap()
+                        .unlock_state()
+                        .unwrap();
                 }
+                // if there is an error then the state would still be locked.
+                // so we unlock it here
             })
         })?)
         .await?;

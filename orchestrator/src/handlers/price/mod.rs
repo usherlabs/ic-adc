@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     helpers::logs::{ic::get_canister_logs, types::EventLog},
 };
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use chrono::prelude::*;
 use poller::LogPollerState;
 use types::Response;
@@ -20,7 +20,15 @@ pub async fn fetch_canister_logs() -> Result<()> {
         "Running 'fetch_canister_logs' at {}",
         Utc::now().to_string()
     );
-    let state = LogPollerState::load_state()?;
+
+    let mut state = LogPollerState::load_state()?;
+
+    if state.locked {
+        println!("'fetch_canister_logs' already running. Terminating...");
+        return Ok(());
+    }
+    state.lock_state()?;
+
     let config = Config::env();
 
     // get all the logs which meet this criteria
@@ -28,6 +36,7 @@ pub async fn fetch_canister_logs() -> Result<()> {
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
 
     if latest_valid_logs.len() == 0 {
+        state.unlock_state()?;
         return Ok(());
     };
     println!("Processing {} valid logs", latest_valid_logs.len());
