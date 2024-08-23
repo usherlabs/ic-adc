@@ -1,11 +1,10 @@
 use anyhow::{Ok, Result};
 use serde_json::Value;
 
-use crate::handlers::price::traits::PricingDataSource;
+use crate::{handlers::price::traits::PricingDataSource, helpers::verity::get_verity_client};
 
 #[derive(Debug)]
-pub struct Redstone {
-}
+pub struct Redstone {}
 
 impl PricingDataSource for Redstone {
     fn new() -> Self {
@@ -21,9 +20,17 @@ impl PricingDataSource for Redstone {
     /// get latest price data for a currency from redstone api
     async fn get_price(ticker: String) -> Result<f64> {
         let request_url = Self::get_url(ticker).await?;
-        // Send a GET request to the API
-        //TODO: use the verity prover to get some data
-        let response = reqwest::get(&request_url).await?.text().await?;
+        // Send a GET request to the API using the verity client
+        let verity_client = get_verity_client();
+        let response = verity_client
+            .get(&request_url)
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+        // let response = reqwest::get(&request_url).await?.text().await?;
 
         // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
@@ -37,7 +44,7 @@ impl PricingDataSource for Redstone {
     }
 
     /// Get pair price i.e "BTC/USDT"
-    async fn get_pair_price(currency_pair: String) -> Result<f64>{
+    async fn get_pair_price(currency_pair: String) -> Result<f64> {
         // Split the string into an iterator of substrings
         let parts: Vec<&str> = currency_pair.split('/').collect();
 

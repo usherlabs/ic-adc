@@ -21,7 +21,7 @@ pub async fn fetch_canister_logs() -> Result<()> {
         Utc::now().to_string()
     );
     let state = LogPollerState::load_state()?;
-    let config = Config::get_and_persist(&None)?;
+    let config = Config::env();
 
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =

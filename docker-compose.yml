@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  verity-prover:
+    network_mode: "host"
+    build:
+      context: .prover
+      dockerfile: prover.Dockerfile
+    ports:
+      - "8080:8080"
+  
+  orchestrator:
+    network_mode: "host"
+    build: .
+    depends_on:
+      - verity-prover

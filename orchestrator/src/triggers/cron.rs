@@ -3,7 +3,7 @@ use tokio_cron_scheduler::{Job, JobSchedulerError};
 
 pub async fn load_cron() -> Result<CronJob, JobSchedulerError> {
     let cronjob = CronJob::new().await;
-    let config: Config = Config::get_and_persist(&None).unwrap();
+    let config: Config = Config::env();
 
     // add jobs to the cronjob
     cronjob
