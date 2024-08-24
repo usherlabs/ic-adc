@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use crate::{
     config::Config,
     helpers::logs::{ic::get_canister_logs, types::EventLog},
@@ -12,31 +14,46 @@ pub mod sources;
 pub mod traits;
 pub mod types;
 
+/// Define a default base currency for the price pair when one is nor provided
 pub const DEFAULT_BASE_CURRENCY: &str = "USDT";
+/// Define a global variable to track whether the program is running already
+pub static IS_RUNNING: AtomicBool = AtomicBool::new(false);
+
+pub async fn handler() {
+    // if program is already running then return
+    if IS_RUNNING.load(Ordering::SeqCst) {
+        return;
+    }
+
+    // set the running state to true to prevent further instances untill this is complete
+    IS_RUNNING.store(true, Ordering::SeqCst);
+
+    let fetch_logs_response = fetch_canister_logs().await;
+    // set the running state to false to enable further instances untill this is complete
+    IS_RUNNING.store(false, Ordering::SeqCst);
+
+    if let Err(e) = fetch_logs_response {
+        println!("Error fetching canister logs: {}", e)
+    }
+}
 
 /// register handlers for several orchestrator programs
 pub async fn fetch_canister_logs() -> Result<()> {
-    println!(
-        "Running 'fetch_canister_logs' at {}",
-        Utc::now().to_string()
-    );
-
-    let mut state = LogPollerState::load_state()?;
-
-    if state.locked {
-        println!("'fetch_canister_logs' already running. Terminating...");
-        return Ok(());
-    }
-    state.lock_state()?;
+    let state = LogPollerState::load_state()?;
 
     let config = Config::env();
+    if config.is_dev {
+        println!(
+            "Running 'fetch_canister_logs' at {}",
+            Utc::now().to_string()
+        );
+    }
 
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
 
     if latest_valid_logs.len() == 0 {
-        state.unlock_state()?;
         return Ok(());
     };
     println!("Processing {} valid logs", latest_valid_logs.len());
@@ -47,7 +64,6 @@ pub async fn fetch_canister_logs() -> Result<()> {
 
     let agent = config.get_agent().await?;
     for response in responses {
-        // let payload = serde_json::to_string(&response)?;
         agent
             .update(&config.canister, "receive_orchestrator_response")
             .with_arg(candid::encode_args((response,))?)

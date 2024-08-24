@@ -7,9 +7,3 @@ services:
       dockerfile: prover.Dockerfile
     ports:
       - "8080:8080"
-  
-  orchestrator:
-    network_mode: "host"
-    build: .
-    depends_on:
-      - verity-prover
