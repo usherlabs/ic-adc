@@ -10,6 +10,7 @@ use crate::helpers::verity::{DEFAULT_PROVER_URL, DEFAULT_PROVER_ZMQ_URL};
 
 use super::helpers::logs::ic::{create_agent, DEFAULT_IDENTITY_PATH, DEFAULT_SHARED_LOCAL_BIND};
 
+const DEV: &str = "dev";
 /// The configuration for the orchestrator
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -28,6 +29,8 @@ pub struct Config {
     pub prover_zmq_url: String,
     /// analysis URL
     pub analysis_url: Option<String>,
+    /// is this dev or prod env
+    pub is_dev: bool,
 }
 
 impl Config {
@@ -47,6 +50,7 @@ impl Config {
         let prover_url = get_env_or_default("PROVER_URL", DEFAULT_PROVER_URL);
         let prover_zmq_url = get_env_or_default("PROVER_ZMQ_URL", DEFAULT_PROVER_ZMQ_URL);
         let analysis_url = get_env_or_none("ANALYSIS_URL");
+        let is_dev = get_env_or_default("ENV", DEV) == DEV;
 
         Self {
             url: icp_url,
@@ -56,6 +60,7 @@ impl Config {
             prover_url: prover_url,
             prover_zmq_url: prover_zmq_url,
             analysis_url: analysis_url,
+            is_dev
         }
     }
 }
