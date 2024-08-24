@@ -1,3 +1,4 @@
+#! Running the orchestrator in a docker file leads to issues with the verity-client
 # initial buider image to compile the orchestrator into an executable binary
 FROM rust:bookworm AS build
 WORKDIR /verityprogram
