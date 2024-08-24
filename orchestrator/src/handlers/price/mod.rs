@@ -1,12 +1,12 @@
-use std::sync::atomic::{AtomicBool, Ordering};
-
 use crate::{
     config::Config,
     helpers::logs::{ic::get_canister_logs, types::EventLog},
 };
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use chrono::prelude::*;
 use poller::LogPollerState;
+use std::result::Result::Ok;
+use std::sync::atomic::{AtomicBool, Ordering};
 use types::Response;
 
 pub mod poller;
@@ -87,12 +87,14 @@ pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<Response> {
         let mut price_response = Response::from(request);
 
         if request_options.price {
-            // TODO: error handling for when the price fails to process
-            if price_response.process_prices().await.is_ok() {
-                responses.push(price_response);
-            } else {
-                println!("Failed to process pricing data:{:?}", event)
-            }
+            let process_status = price_response.process_prices().await;
+            match process_status {
+                // TODO: error handling for when the price fails to process
+                Err(msg) => {
+                    println!("Failed to process pricing data:{:?}", msg)
+                }
+                Ok(_) => responses.push(price_response),
+            };
         }
 
         //TODO: check for other request options to fetch other details

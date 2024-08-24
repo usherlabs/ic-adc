@@ -11,8 +11,10 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get -y upgrade && apt-get install -y --no-install-recommends \
   pkg-config \
   libssl-dev \
+  ca-certificates \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
 # Copy default fixture folder for default usage
 WORKDIR /verityprogram
 # copy the build artifact and config from the build stage
