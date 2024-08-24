@@ -1,3 +1,4 @@
+use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
 
@@ -22,25 +23,16 @@ impl PricingDataSource for Redstone {
         let request_url = Self::get_url(ticker).await?;
         // Send a GET request to the API using the verity client
         let verity_client = get_verity_client();
-        let response = verity_client
-            .get(&request_url)
-            .send()
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap();
-        // let response = reqwest::get(&request_url).await?.text().await?;
+        let response = verity_client.get(&request_url).send().await?.text().await?;
 
         // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
 
         // Access the 'price' property and return it
-        if let Some(price) = data[0]["value"].as_f64() {
-            Ok(price)
-        } else {
-            anyhow::bail!("Price not available: JSON structure changed:{}", response)
-        }
+        data[0]["value"]
+            .as_f64()
+            .context("Price not available: JSON structure changed")
+            .and_then(|exp| Ok(exp))
     }
 
     /// Get pair price i.e "BTC/USDT"
@@ -49,8 +41,15 @@ impl PricingDataSource for Redstone {
         let parts: Vec<&str> = currency_pair.split('/').collect();
 
         // Assuming the first part is the quote and the second part is the base
-        let base = parts.get(0).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
-        let quote = parts.get(1).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
+        let base = match parts.get(0) {
+            Some(base) => base.to_string(),
+            None => anyhow::bail!("Missing base currency part"),
+        };
+
+        let quote = match parts.get(1) {
+            Some(quote) => quote.to_string(),
+            None => anyhow::bail!("Missing quote currency part"),
+        };
 
         let base_price = Self::get_price(base).await?;
         let quote_price = Self::get_price(quote).await?;
