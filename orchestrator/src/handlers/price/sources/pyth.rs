@@ -1,4 +1,5 @@
 use crate::{handlers::price::traits::PricingDataSource, helpers::verity::get_verity_client};
+use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
 
@@ -9,7 +10,7 @@ impl Pyth {
     /// Given a ticker(e.g USDT) it should return the ID associated with it
     pub async fn get_ticker_id(ticker: String) -> Result<String> {
         let quote_currency_to_find = "USD"; // Quote currency you're looking for
-                                            // TODO: we could cache this api call then refresh it on a daily basis using a cronjob
+        // TODO: we could cache this api call then refresh it on a daily basis using a cronjob
         let request_url = "https://hermes.pyth.network/v2/price_feeds".to_string();
 
         let mut ticker_id: Option<String> = None;
@@ -26,7 +27,10 @@ impl Pyth {
             }
         }
 
-        let ticker_id = ticker_id.unwrap();
+        let ticker_id = match ticker_id {
+            Some(id) => id.to_string(),
+            None => anyhow::bail!("Invalid ticker id"),
+        };
         Ok(ticker_id)
     }
 }
@@ -47,22 +51,21 @@ impl PricingDataSource for Pyth {
     /// get latest price data for a currency from pyth api
     async fn get_price(ticker: String) -> Result<f64> {
         let request_url = Self::get_url(ticker).await?;
+
         // Send a GET request to the API
         let verity_client = get_verity_client();
-        let response = verity_client
-            .get(&request_url)
-            .send()
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap();
-        // let response = reqwest::get(&request_url).await?.text().await?;
+        let response = verity_client.get(&request_url).send().await?.text().await?;
 
         // // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
-        let price = data[0]["price"]["price"].as_str().unwrap();
-        let exp = data[0]["price"]["expo"].as_i64().unwrap();
+        let price = data[0]["price"]["price"]
+            .as_str()
+            .context("price.price field is missing")
+            .and_then(|price| Ok(price))?;
+        let exp = data[0]["price"]["expo"]
+            .as_i64()
+            .context("price.expo field is missing")
+            .and_then(|exp| Ok(exp))?;
 
         let price: f64 = price.parse()?;
         let multiplier = 1.0 as f64 / (10 as f64).powf(exp.abs() as f64);
@@ -77,8 +80,15 @@ impl PricingDataSource for Pyth {
         let parts: Vec<&str> = currency_pair.split('/').collect();
 
         // Assuming the first part is the quote and the second part is the base
-        let base = parts.get(0).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
-        let quote = parts.get(1).unwrap().to_string(); // Default to "Unknown" if the split results in less than two parts
+        let base = match parts.get(0) {
+            Some(base) => base.to_string(),
+            None => anyhow::bail!("Missing base currency part"),
+        };
+
+        let quote = match parts.get(1) {
+            Some(quote) => quote.to_string(),
+            None => anyhow::bail!("Missing quote currency part"),
+        };
 
         let base_price = Self::get_price(base).await?;
         let quote_price = Self::get_price(quote).await?;
