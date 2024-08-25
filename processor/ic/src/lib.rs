@@ -1,6 +1,6 @@
 use candid::Principal;
 use core::panic;
-use ic_cdk::{api::time, println};
+use ic_cdk::{api::time, println, storage};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
 use types::{Request, RequestOpts, Response};
@@ -86,3 +86,24 @@ async fn is_canister_whitelisted(principal: Principal) -> bool {
     owner::only_owner();
     whitelist::is_whitelisted(principal)
 }
+
+// --------------------------- upgrade hooks ------------------------- //
+#[pre_upgrade]
+/// backuo
+fn pre_upgrade() {
+    let cloned_buffer = REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().clone());
+
+    storage::stable_save((cloned_buffer,)).unwrap()
+}
+#[post_upgrade]
+async fn post_upgrade() {
+    let (cached_buffer, ): (
+        HashMap<String, bool>,
+    ) = storage::stable_restore().unwrap();
+
+    REQUEST_RESPONSE_BUFFER.with(|store| *store.borrow_mut() = cached_buffer);
+
+    owner::init_owner();
+}
+// --------------------------- upgrade hooks ------------------------- //
+
