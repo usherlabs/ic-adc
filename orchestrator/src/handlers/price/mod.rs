@@ -28,13 +28,13 @@ pub async fn handler() {
     // set the running state to true to prevent further instances untill this is complete
     IS_RUNNING.store(true, Ordering::SeqCst);
 
-    let fetch_logs_response = fetch_canister_logs().await.unwrap();
+    let fetch_logs_response = fetch_canister_logs().await;
     // set the running state to false to enable further instances untill this is complete
     IS_RUNNING.store(false, Ordering::SeqCst);
 
-    // if let Err(e) = fetch_logs_response {
-    //     println!("Error fetching canister logs: {}", e)
-    // }
+    if let Err(e) = fetch_logs_response {
+        println!("Error fetching canister logs: {}", e)
+    }
 }
 
 /// register handlers for several orchestrator programs
