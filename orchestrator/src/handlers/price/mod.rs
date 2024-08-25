@@ -28,13 +28,13 @@ pub async fn handler() {
     // set the running state to true to prevent further instances untill this is complete
     IS_RUNNING.store(true, Ordering::SeqCst);
 
-    let fetch_logs_response = fetch_canister_logs().await;
+    let fetch_logs_response = fetch_canister_logs().await.unwrap();
     // set the running state to false to enable further instances untill this is complete
     IS_RUNNING.store(false, Ordering::SeqCst);
 
-    if let Err(e) = fetch_logs_response {
-        println!("Error fetching canister logs: {}", e)
-    }
+    // if let Err(e) = fetch_logs_response {
+    //     println!("Error fetching canister logs: {}", e)
+    // }
 }
 
 /// register handlers for several orchestrator programs
@@ -56,11 +56,19 @@ pub async fn fetch_canister_logs() -> Result<()> {
     if latest_valid_logs.len() == 0 {
         return Ok(());
     };
-    println!("Processing {} valid logs", latest_valid_logs.len());
+    println!(
+        "Processing {} valid logs at {}",
+        latest_valid_logs.len(),
+        Utc::now().to_string()
+    );
 
     // generate proofs using redstone api and pyth api
     let responses = fetch_pricing_data(latest_valid_logs).await;
-    println!("Processed {} valid logs", responses.len());
+    println!(
+        "Processed {} valid logs at {}",
+        responses.len(),
+        Utc::now().to_string()
+    );
 
     let agent = config.get_agent().await?;
     for response in responses {

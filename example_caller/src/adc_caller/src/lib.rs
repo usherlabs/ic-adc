@@ -12,7 +12,7 @@ pub mod types;
 async fn submit_adc_request(currency_pairs: String) -> String {
     let adc_canister_request_method = "request_data";
     //TODO: change the principal to that of the processor's
-    let processor_canister_principal = Principal::from_str("bkyz2-fmaaa-aaaaa-qaaaq-cai").unwrap();
+    let processor_canister_principal = Principal::from_str("brbgg-kaaaa-aaaan-qmvzq-cai").unwrap();
     let options = RequestOpts::default();
 
     let (request_id,): (String,) = ic_cdk::call(

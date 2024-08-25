@@ -35,11 +35,7 @@ pub async fn create_agent(config: &Config) -> anyhow::Result<Agent> {
         .with_verify_query_signatures(true)
         .build()?;
 
-    let is_mainnet = matches!(
-        &config.url.clone()[..],
-        DEFAULT_IC_GATEWAY | DEFAULT_IC_GATEWAY_TRAILING_SLASH
-    );
-    if !is_mainnet {
+    if config.is_dev {
         agent.fetch_root_key().await?;
     }
 
