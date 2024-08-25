@@ -19,7 +19,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y --no-install-reco
 WORKDIR /verityprogram
 # copy the build artifact and config from the build stage
 COPY --from=build /verityprogram/target/release/orchestrator .
-COPY --from=build /verityprogram/.env .
+# TODO: the env variables from the docker compose file will override the .env file
 COPY --from=build /verityprogram/identity.pem .
 # set the startup command to run your binary
 CMD ["./orchestrator"]
