@@ -15,15 +15,14 @@ pub fn get_verity_client() -> VerityClient {
     let verity_config = VerityClientConfig {
         prover_url: config.prover_url,
         prover_zmq: config.prover_zmq_url,
-        analysis: None
-        // analysis: if config.analysis_url.is_some() {
-        //     Some(AnalysisConfig {
-        //         analysis_url: String::from(config.analysis_url.unwrap()),
-        //         signing_key,
-        //     })
-        // } else {
-        //     None
-        // },
+        analysis: if config.analysis_url.is_some() {
+            Some(AnalysisConfig {
+                analysis_url: String::from(config.analysis_url.unwrap()),
+                signing_key,
+            })
+        } else {
+            None
+        },
     };
 
     VerityClient::new(verity_config)
