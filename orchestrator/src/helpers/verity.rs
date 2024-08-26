@@ -1,4 +1,4 @@
-// use k256::ecdsa::SigningKey;
+use k256::ecdsa::SigningKey;
 use verity_client::client::{AnalysisConfig, VerityClient, VerityClientConfig};
 
 use crate::config::Config;
@@ -9,8 +9,8 @@ pub const DEFAULT_ANALYSIS_URL: &str = "http://127.0.0.1:8000";
 
 pub fn get_verity_client() -> VerityClient {
     let config = Config::env();
-    // let mut rng = rand::thread_rng();
-    // let signing_key = SigningKey::random(&mut rng);
+    let mut rng = rand::thread_rng();
+    let signing_key = SigningKey::random(&mut rng);
 
     let verity_config = VerityClientConfig {
         prover_url: config.prover_url,
