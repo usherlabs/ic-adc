@@ -1,7 +1,12 @@
+use std::time::Duration;
+
 use crate::{handlers::price::traits::PricingDataSource, helpers::verity::get_verity_client};
 use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
+use tokio::time::sleep;
+
+use super::PROXY_FETCH_DELAY;
 
 #[derive(Debug)]
 pub struct Pyth {}
@@ -55,6 +60,7 @@ impl PricingDataSource for Pyth {
         // Send a GET request to the API
         let verity_client = get_verity_client();
         let response = verity_client.get(&request_url).send().await?.text().await?;
+        sleep(Duration::from_secs(PROXY_FETCH_DELAY)).await;
 
         // // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;

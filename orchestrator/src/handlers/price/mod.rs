@@ -29,11 +29,16 @@ pub async fn handler() {
     IS_RUNNING.store(true, Ordering::SeqCst);
 
     let fetch_logs_response = fetch_canister_logs().await;
+
     // set the running state to false to enable further instances untill this is complete
     IS_RUNNING.store(false, Ordering::SeqCst);
 
     if let Err(e) = fetch_logs_response {
         println!("Error fetching canister logs: {}", e)
+    } else{
+        // if theres no error then update the last timestamp
+        let updated_state = LogPollerState::default();
+        updated_state.save_state().unwrap();
     }
 }
 
@@ -78,9 +83,6 @@ pub async fn fetch_canister_logs() -> Result<()> {
             .call_and_wait()
             .await?;
     }
-
-    let updated_state = LogPollerState::default();
-    updated_state.save_state()?;
 
     println!("Responses pushed to canister\n");
     Ok(())
