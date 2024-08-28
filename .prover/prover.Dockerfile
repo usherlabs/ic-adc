@@ -17,6 +17,7 @@ COPY ./config/prover.yaml /app/.verity/config/prover.yaml
 
 # Expose the port that the Prover server will run on
 EXPOSE 8080
+EXPOSE 8000
 
 # Command to start the Prover server with the right config file
 CMD ["verity", "prover", "start", "--config", "/app/.verity/config/prover.yaml"]
