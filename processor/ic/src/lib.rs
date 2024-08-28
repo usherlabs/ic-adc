@@ -15,7 +15,7 @@ thread_local! {
 // @dev testing command
 #[query]
 fn name() -> String {
-    format!("processor canister")
+    format!("adc")
 }
 
 #[init]
@@ -97,9 +97,7 @@ fn pre_upgrade() {
 }
 #[post_upgrade]
 async fn post_upgrade() {
-    let (cached_buffer, ): (
-        HashMap<String, bool>,
-    ) = storage::stable_restore().unwrap();
+    let (cached_buffer,): (HashMap<String, bool>,) = storage::stable_restore().unwrap();
 
     REQUEST_RESPONSE_BUFFER.with(|store| *store.borrow_mut() = cached_buffer);
 
@@ -107,3 +105,17 @@ async fn post_upgrade() {
 }
 // --------------------------- upgrade hooks ------------------------- //
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_whitelist() {
+        let dummy_principal = Principal::anonymous();
+
+        whitelist::add_to_whitelist(dummy_principal);
+
+        let is_whitelisted = whitelist::is_whitelisted(dummy_principal);
+        assert_eq!(is_whitelisted, true)
+    }
+}

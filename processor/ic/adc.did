@@ -13,6 +13,10 @@ type PriceResponse = record {
     processed: bool;
 };
 
+type PriceOpts = record {
+    price: bool
+};
+
 service : {
     "name": () -> (text) query;
     // whitelist operations
@@ -21,6 +25,6 @@ service : {
     "is_canister_whitelisted": (canister_principal: principal) -> (bool) query;
     
     // price request/response operations
-    "request_data": (comma_seperated_pairs: text) -> (text);
+    "request_data": (comma_seperated_pairs: text, opts: PriceOpts) -> (text);
     "receive_orchestrator_response": (price_response_stringified: PriceResponse) -> ();
 }
