@@ -60,9 +60,6 @@ impl Response {
     pub async fn process_prices(&mut self) -> Result<()> {
         for pair in &mut self.pairs {
             pair.fetch_prices().await?; // Assuming fetch_data returns a Future
-            // sleeping
-            // sleep for a while to avoid rate limiting errors
-            thread::sleep(std::time::Duration::from_secs(10));
         }
 
         self.processed = true;

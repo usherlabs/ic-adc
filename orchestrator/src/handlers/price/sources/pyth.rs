@@ -1,12 +1,8 @@
-use std::time::Duration;
-
-use crate::{handlers::price::traits::PricingDataSource, helpers::verity::get_verity_client};
 use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
-use tokio::time::sleep;
 
-use super::PROXY_FETCH_DELAY;
+use crate::handlers::price::traits::PricingDataSource;
 
 #[derive(Debug)]
 pub struct Pyth {}
@@ -14,7 +10,7 @@ pub struct Pyth {}
 impl Pyth {
     /// Given a ticker(e.g USDT) it should return the ID associated with it
     pub async fn get_ticker_id(ticker: String) -> Result<String> {
-        let quote_currency_to_find = "USD"; // Quote currency you're looking for
+        let quote_currency_to_find = "USD";
         // TODO: we could cache this api call then refresh it on a daily basis using a cronjob
         let request_url = "https://hermes.pyth.network/v2/price_feeds".to_string();
 
@@ -58,9 +54,10 @@ impl PricingDataSource for Pyth {
         let request_url = Self::get_url(ticker).await?;
 
         // Send a GET request to the API
-        let verity_client = get_verity_client();
-        let response = verity_client.get(&request_url).send().await?.text().await?;
-        sleep(Duration::from_secs(PROXY_FETCH_DELAY)).await;
+        // TODO: enable the use of verity client after prover issue has been fixed
+        // let verity_client = get_verity_client();
+        // let response = verity_client.get(&request_url).send().await?.text().await?;
+        let response = reqwest::get(&request_url).await?.text().await?;
 
         // // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;

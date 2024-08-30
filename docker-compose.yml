@@ -1,13 +1,13 @@
 version: '3.8'
 services:
-  verity-prover:
-    network_mode: "host"
-    build:
-      context: .prover
-      dockerfile: prover.Dockerfile
-    ports:
-      - "8080:8080"
-      - "8000:8000"
+  # verity-prover:
+  #   network_mode: "host"
+  #   build:
+  #     context: .prover
+  #     dockerfile: prover.Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #     - "8000:8000"
   
   orchestrator:
     network_mode: "host"
@@ -19,5 +19,5 @@ services:
       - JOB_SCHEDULE=1/30 * * * * *
       - PROVER_URL=http://127.0.0.1:8080
       - PROVER_ZMQ_URL=tcp://127.0.0.1:8000
-    depends_on:
-      - verity-prover
+    # depends_on:
+    #   - verity-prover
