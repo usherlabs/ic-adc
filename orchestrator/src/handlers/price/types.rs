@@ -1,4 +1,4 @@
-use std::{fmt::Display, thread};
+use std::fmt::Display;
 
 use anyhow::Result;
 use candid::{CandidType, Principal};
@@ -22,7 +22,7 @@ pub struct Request {
     /// a vector of strings representing the currency pair e.b ["BTC", "BTC/USDT"]
     pub pairs: Vec<String>,
     // add other proprties about the price here
-    pub opts: RequestOpts
+    pub opts: RequestOpts,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
@@ -93,7 +93,6 @@ impl InformationDetails {
     }
 }
 
-
 #[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
 pub struct RequestOpts {
     pub price: bool,
@@ -146,7 +145,7 @@ impl TryFrom<String> for CurrencyPair {
             base: base.to_string(),
             quote: quote.to_string(),
             repr: currency_pair,
-            price: None
+            price: None,
         })
     }
 }
