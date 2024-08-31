@@ -61,11 +61,12 @@ async fn submit_adc_request(currency_pairs: String) -> String {
 2. **Receiving a response for a request:**
 
 To receive a response, an `update` function called `receive_adc_response` must be present on the Calling Canister.
+This method recieves a `result` which could either contain information about the response or the error encountered while trying to fetch the response
 
 ```rust
 
 #[ic_cdk::update]
-fn receive_adc_response(response: ADCResponse) {
+fn receive_adc_response(response: Result<ADCResponse, ADCErrorResponse>) {
     println!("receive_adc_response: {:?}", response);
 }
 ```
