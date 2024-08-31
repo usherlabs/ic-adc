@@ -1,16 +1,21 @@
 use candid::Principal;
 use core::panic;
-use ic_cdk::{api::time, println, storage};
+use ic_cdk::storage;
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
 use types::{ErrorResponse, Request, RequestOpts, Response};
 use verity_dp_ic::{owner, whitelist};
+use ic_cdk::api::time;
 
 pub mod types;
 
 thread_local! {
     static REQUEST_RESPONSE_BUFFER: RefCell<HashMap<String, bool>> = RefCell::default();
 }
+
+/// use this variable to control the max number of currencypairs
+/// that can be contained in one request
+const REQUEST_CURRENCY_PAIR_LIMIT: usize = 10;
 
 // @dev testing command
 #[query]
@@ -54,6 +59,13 @@ fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     // include the caller canister's id to know who to send a response to
     let price_request = Request::new(request_id.clone(), caller_principal, currency_pairs, opts);
 
+    // validate that this request for data contains a maximum of 10 pairs
+    if price_request.pairs.len() > REQUEST_CURRENCY_PAIR_LIMIT {
+        panic!(
+            "Number of pairs requested must not be more than {}",
+            REQUEST_CURRENCY_PAIR_LIMIT
+        );
+    };
     let price_request_stringified = serde_json::to_string(&price_request).unwrap();
     // log the price request to be picked up by the orchestrator
     println!("{}", price_request_stringified);
