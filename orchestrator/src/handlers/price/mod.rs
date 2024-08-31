@@ -2,12 +2,12 @@ use crate::{
     config::Config,
     helpers::logs::{ic::get_canister_logs, types::EventLog},
 };
-use anyhow::Result;
+// use anyhow::Result;
 use chrono::prelude::*;
 use poller::LogPollerState;
-use std::result::Result::Ok;
+use std::result::Result::{self, Ok};
 use std::sync::atomic::{AtomicBool, Ordering};
-use types::Response;
+use types::{ErrorResponse, Response};
 
 pub mod poller;
 pub mod sources;
@@ -18,6 +18,8 @@ pub mod types;
 pub const DEFAULT_BASE_CURRENCY: &str = "USDT";
 /// Define a global variable to track whether the program is running already
 pub static IS_RUNNING: AtomicBool = AtomicBool::new(false);
+
+pub type ResponseResult = Result<Response, ErrorResponse>;
 
 pub async fn handler() {
     // if program is already running then return
@@ -43,7 +45,7 @@ pub async fn handler() {
 }
 
 /// register handlers for several orchestrator programs
-pub async fn fetch_canister_logs() -> Result<()> {
+pub async fn fetch_canister_logs() -> anyhow::Result<()> {
     let state = LogPollerState::load_state()?;
 
     let config = Config::env();
@@ -88,22 +90,28 @@ pub async fn fetch_canister_logs() -> Result<()> {
     Ok(())
 }
 
-pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<Response> {
-    let mut responses: Vec<Response> = vec![];
+pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult> {
+    let mut responses: Vec<ResponseResult> = vec![];
 
     for event in event_logs {
         let request = event.logs.clone();
         let request_options: types::RequestOpts = request.clone().opts;
-        let mut price_response = Response::from(request);
+        let mut price_response = Response::from(request.clone());
 
+        // if the price option is set to true then we should
         if request_options.price {
             let process_status = price_response.process_prices().await;
             match process_status {
-                // TODO: error handling for when the price fails to process
                 Err(msg) => {
-                    println!("Failed to process pricing data:{:?}", msg)
+                    println!("Failed to process pricing data:{:?}", msg);
+                    // on error we push an error response to the canister
+                    responses.push(Err(ErrorResponse::new(
+                        request.id,
+                        request.owner,
+                        msg.to_string(),
+                    )));
                 }
-                Ok(_) => responses.push(price_response),
+                Ok(_) => responses.push(Ok(price_response)),
             };
         }
 

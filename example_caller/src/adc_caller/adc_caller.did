@@ -10,16 +10,26 @@ type InformationDetails = record {
     sources: vec float64;
 };
 
-
-type Response = record {
+type ADCResponse = record {
     id: text;
     owner: principal;
     pairs: vec CurrencyPair;
     processed: bool;
 };
 
+type ErrorResponse = record {
+  id: text;
+  owner: principal;
+  message: text;
+};
+
+type ResponseResult = variant {
+  ok: ADCResponse;
+  err: ErrorResponse;
+};
+
 
 service : {
     "submit_adc_request": (text) -> (text);
-    "receive_adc_response": (Response) -> ();
+    "receive_adc_response": (ResponseResult) -> ();
 }

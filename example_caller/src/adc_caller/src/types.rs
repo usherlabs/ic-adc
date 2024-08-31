@@ -16,6 +16,22 @@ pub struct ADCResponse {
     processed: bool,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+pub struct ADCErrorResponse {
+    /// the id of this request
+    pub id: String,
+    /// the principal of the canister which originated this request
+    pub owner: Principal,
+    /// A text describing the error message
+    pub message: String,
+}
+
+impl ADCErrorResponse {
+    pub fn new(id: String, owner: Principal, message: String) -> Self {
+        Self { id, owner, message }
+    }
+}
+
 /// a struct representing a currency pair
 #[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
 pub struct CurrencyPair {
