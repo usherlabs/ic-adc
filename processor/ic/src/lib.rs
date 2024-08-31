@@ -3,7 +3,7 @@ use core::panic;
 use ic_cdk::{api::time, println, storage};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
-use types::{Request, RequestOpts, Response};
+use types::{ErrorResponse, Request, RequestOpts, Response};
 use verity_dp_ic::{owner, whitelist};
 
 pub mod types;
@@ -66,19 +66,25 @@ fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
 #[update]
 /// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
 /// it would receive the response for a request made and forward it to the requesting canister
-async fn receive_orchestrator_response(response: Response) {
+async fn receive_orchestrator_response(response: Result<Response, ErrorResponse>) {
     // only owner(orchestrator) can call
     owner::only_owner();
+
+    let (response_owner, id) = match response.clone() {
+        Ok(Response { owner, id, .. }) => (owner, id),
+        Err(ErrorResponse { owner, id, .. }) => (owner, id),
+    };
+
     // validate that id is present in buffer
-    if !REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().contains_key(&response.id)) {
+    if !REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().contains_key(&id)) {
         panic!("invalid response")
     }
     // remove ID from buffer
-    REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow_mut().remove(&response.id));
+    REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow_mut().remove(&id));
 
     // call function and get response
     let _call_result: Result<(), _> =
-        ic_cdk::call(response.owner, "receive_adc_response", (response,)).await;
+        ic_cdk::call(response_owner, "receive_adc_response", (response,)).await;
 }
 
 #[query]
