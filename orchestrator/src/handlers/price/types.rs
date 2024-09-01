@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, vec};
 
 use anyhow::Result;
 use candid::{CandidType, Principal};
@@ -11,6 +11,7 @@ use super::{
     traits::PricingDataSource,
 };
 
+pub const MINIMUM_SOURCE_COUNT: usize = 1;
 /// a struct which would be used to
 /// communicate data requested by the ADC
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -118,23 +119,38 @@ impl CurrencyPair {
     async fn fetch_prices(&mut self) -> Result<()> {
         // TODO: if a data source is down, do we throw an error for the whole process or proceed without it
         // fetch price from redstone
-        let redstone_price = Redstone::get_pair_price(self.to_string()).await?;
+        let redstone_price = Redstone::get_pair_price(self.to_string()).await.ok();
         // fetch price from pyth
-        let pyth_price = Pyth::get_pair_price(self.to_string()).await?;
+        let pyth_price = Pyth::get_pair_price(self.to_string()).await.ok();
 
         // update the struct if both are available
         let sources = vec![redstone_price, pyth_price];
-        let consensus_price = Self::resolve_prices(&sources);
+        let consensus_price = Self::resolve_prices(&sources)?;
 
-        self.price = Some(InformationDetails::new(consensus_price, sources));
+        let valid_sources: Vec<f64> = sources
+            .clone()
+            .iter()
+            .filter_map(|opt_ref| opt_ref.map(|val| val.to_owned()))
+            .collect();
+        self.price = Some(InformationDetails::new(consensus_price, valid_sources));
 
         Ok(())
     }
 
     /// The strategy which we would use to determine one price among our sources
-    fn resolve_prices(prices: &Vec<f64>) -> f64 {
-        let sum = prices.iter().sum::<f64>();
-        sum / prices.len() as f64
+    fn resolve_prices(sources: &Vec<Option<f64>>) -> anyhow::Result<f64> {
+        let valid_sources: Vec<f64> = sources
+            .clone()
+            .iter()
+            .filter_map(|opt_ref| opt_ref.map(|val| val.to_owned()))
+            .collect();
+
+        if valid_sources.len() < MINIMUM_SOURCE_COUNT {
+            anyhow::bail!("Not enough sources available")
+        }
+
+        let sum = valid_sources.iter().sum::<f64>();
+        Ok(sum / valid_sources.len() as f64)
     }
 }
 
@@ -200,8 +216,8 @@ mod tests {
 
     #[test]
     fn test_resolve_prices() {
-        let prices_sources = vec![1.0, 2.0, 3.0];
-        let resolved_price = CurrencyPair::resolve_prices(&prices_sources);
+        let prices_sources = vec![Some(1.0), Some(2.0), Some(3.0), None];
+        let resolved_price = CurrencyPair::resolve_prices(&prices_sources).unwrap();
 
         assert_eq!(resolved_price, 2.0);
     }
