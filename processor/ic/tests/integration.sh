@@ -11,7 +11,7 @@ export REQUESTED_CURRENCY_PAIRS="ETH"
 dfx stop
 nohup dfx start --clean &
 
-# wait some time for the dfx local chain to start
+# wait some arbitrary time for the dfx local chain to start
 sleep 5
 
 dfx identity use default
@@ -31,5 +31,10 @@ export VALID_LOG=$(dfx canister logs $CANISTER_NAME | tail -n 1 | grep "id")
 
 if [ -z "$VALID_LOG" ] || [ "$VALID_LOG" = "" ]; then
     echo "Test Failed: Price Request not logged"
+    exit 1
+fi
+
+if [ -z "$TIMESTAMP" ] || [ "$TIMESTAMP" = "" ]; then
+    echo "Test Failed: Timestamp not returned as id deom data request"
     exit 1
 fi
