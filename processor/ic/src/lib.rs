@@ -1,11 +1,11 @@
 use candid::Principal;
 use core::panic;
-use ic_cdk::storage;
+use ic_cdk::api::time;
+use ic_cdk::{println, storage};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
 use types::{ErrorResponse, Request, RequestOpts, Response};
 use verity_dp_ic::{owner, whitelist};
-use ic_cdk::api::time;
 
 pub mod types;
 
@@ -110,14 +110,17 @@ async fn is_canister_whitelisted(principal: Principal) -> bool {
 /// backuo
 fn pre_upgrade() {
     let cloned_buffer = REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().clone());
+    let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
 
-    storage::stable_save((cloned_buffer,)).unwrap()
+    storage::stable_save((cloned_buffer, cloned_whitelist)).unwrap()
 }
 #[post_upgrade]
 async fn post_upgrade() {
-    let (cached_buffer,): (HashMap<String, bool>,) = storage::stable_restore().unwrap();
+    let (cached_buffer, cached_whitelist): (HashMap<String, bool>, HashMap<Principal, bool>) =
+        storage::stable_restore().unwrap();
 
     REQUEST_RESPONSE_BUFFER.with(|store| *store.borrow_mut() = cached_buffer);
+    whitelist::WHITE_LIST.with(|store| *store.borrow_mut() = cached_whitelist);
 
     owner::init_owner();
 }
