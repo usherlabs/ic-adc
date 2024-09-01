@@ -117,7 +117,6 @@ pub struct RequestOpts {
 
 impl CurrencyPair {
     async fn fetch_prices(&mut self) -> Result<()> {
-        // TODO: if a data source is down, do we throw an error for the whole process or proceed without it
         // fetch price from redstone
         let redstone_price = Redstone::get_pair_price(self.to_string()).await.ok();
         // fetch price from pyth
