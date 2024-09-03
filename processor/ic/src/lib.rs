@@ -15,7 +15,7 @@ thread_local! {
 
 /// use this variable to control the max number of currencypairs
 /// that can be contained in one request
-const REQUEST_CURRENCY_PAIR_LIMIT: usize = 5;
+const REQUEST_CURRENCY_PAIR_LIMIT: usize = 10;
 
 // @dev testing command
 #[query]
