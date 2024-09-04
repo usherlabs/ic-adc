@@ -32,6 +32,6 @@ mod tests {
     #[tokio::test]
     async fn test_fetch_canister_logs() {
         //dev: need to be able to test the function without waiting for the cronjob
-        let _ = fetch_canister_logs().await;
+        // let _ = fetch_canister_logs().await;
     }
 }

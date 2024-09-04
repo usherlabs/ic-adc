@@ -3849,7 +3849,7 @@ dependencies = [
 [[package]]
 name = "verity_dp_ic"
 version = "0.1.0"
-source = "git+https://github.com/usherlabs/ccamp.git?branch=feature/ic-af#1fd87026e856b44174a695d7dc60a707882e6f87"
+source = "git+https://github.com/usherlabs/ccamp.git?rev=d0c4d619ae0896fc982ac69ea35b9014a19b2fe6#d0c4d619ae0896fc982ac69ea35b9014a19b2fe6"
 dependencies = [
  "candid 0.7.18",
  "easy-hasher",
