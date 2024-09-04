@@ -99,7 +99,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new_request_pait() {
+    fn test_new_request_pair() {
         let new_currency_pair = " ETh/BtC , soL ";
         let new_request = Request::new(
             String::from("id"),
@@ -110,6 +110,6 @@ mod tests {
         // print!("{:?}", new_request);
         assert_eq!(new_request.pairs.len(), 2);
         assert_eq!(new_request.pairs.get(0).unwrap(), "ETH/BTC");
-        assert_eq!(new_request.pairs.get(0).unwrap(), "SOL");
+        assert_eq!(new_request.pairs.get(1).unwrap(), "SOL");
     }
 }

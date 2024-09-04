@@ -4,6 +4,14 @@
 set -x
 set -e
 
+# validate that thte dfx version os 0.22.0
+export current_dfx_version=$(dfx --version | cut -d' ' -f2)
+if [ "$current_dfx_version" != "0.22.0" ]; then
+    echo "Error: Expected DFX version 0.22.0 but got $current_dfx_version"
+    exit 1
+fi
+
+# export global variables
 export CANISTER_NAME="adc"
 export REQUESTED_CURRENCY_PAIRS="ETH"
 
