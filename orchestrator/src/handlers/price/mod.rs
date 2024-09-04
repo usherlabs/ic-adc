@@ -78,6 +78,7 @@ pub async fn fetch_canister_logs() -> anyhow::Result<()> {
     );
 
     let agent = config.get_agent().await?;
+    // TODO: Could be wiser to batch these responses into a single IC update call
     for response in responses {
         agent
             .update(&config.canister, "receive_orchestrator_response")
