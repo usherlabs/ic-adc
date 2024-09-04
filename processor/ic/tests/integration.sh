@@ -8,6 +8,7 @@ set -e
 export current_dfx_version=$(dfx --version | cut -d' ' -f2)
 if [ "$current_dfx_version" != "0.22.0" ]; then
     echo "Error: Expected DFX version 0.22.0 but got $current_dfx_version"
+    echo "Visit: https://internetcomputer.org/docs/current/developer-docs/getting-started/install/"
     exit 1
 fi
 
