@@ -23,11 +23,4 @@ COPY --from=build /verityprogram/target/release/orchestrator .
 COPY --from=build /verityprogram/identity.pem .
 # set the startup command to run your binary
 
-
-# add tags for data dog
-LABEL com.datadoghq.ad.check_names='["orchestrator"]'
-LABEL com.datadoghq.ad.init_configs='[{}]'
-LABEL com.datadoghq.ad.instances='[{"command": "./orchestrator"}]'
-LABEL com.datadoghq.ad.logs='[{"source": "orchestrator", "service": "orchestrator"}]'
-
 CMD ["./orchestrator"]
