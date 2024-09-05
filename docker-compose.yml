@@ -8,10 +8,13 @@ services:
   #   ports:
   #     - "8080:8080"
   #     - "8000:8000"
-  
+
   orchestrator:
     network_mode: "host"
-    build: .
+    build:
+      context: .
+      tag: orchestrator:verity
+
     environment:
       - ICP_URL=https://icp0.io
       - ADC_CANISTER=brbgg-kaaaa-aaaan-qmvzq-cai
