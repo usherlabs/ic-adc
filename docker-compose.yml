@@ -11,8 +11,8 @@ services:
   orchestrator:
     network_mode: "host"
     build: .
-    image: orchestrator:verity
-    container_name: verity-orchestrator
+    image: orchestrator:chainsight
+    container_name: chainsight-orchestrator
     environment:
       - ICP_URL=https://icp0.io
       - ADC_CANISTER=brbgg-kaaaa-aaaan-qmvzq-cai
