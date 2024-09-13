@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    helpers::logs::{ic::get_canister_logs, types::EventLog},
+    helpers::{logs::{ic::get_canister_logs, types::EventLog}, utils::get_utc_timestamp},
 };
 // use anyhow::Result;
 use chrono::prelude::*;
@@ -31,12 +31,14 @@ pub async fn handler() {
     IS_RUNNING.store(true, Ordering::SeqCst);
 
     let fetch_logs_response = fetch_canister_logs().await;
-
+    
     if let Err(e) = fetch_logs_response {
         println!("Error fetching canister logs: {}", e)
     } else {
         // if theres no error then update the last timestamp
-        let updated_state = LogPollerState::default();
+        let updated_state = LogPollerState::new(
+            fetch_logs_response.unwrap()
+        );
         updated_state.save_state().unwrap();
     }
 
@@ -45,7 +47,7 @@ pub async fn handler() {
 }
 
 /// register handlers for several orchestrator programs
-pub async fn fetch_canister_logs() -> anyhow::Result<()> {
+pub async fn fetch_canister_logs() -> anyhow::Result<u64> {
     let state = LogPollerState::load_state()?;
 
     let config = Config::env();
@@ -59,9 +61,9 @@ pub async fn fetch_canister_logs() -> anyhow::Result<()> {
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
-
+    
     if latest_valid_logs.len() == 0 {
-        return Ok(());
+        return Ok(get_utc_timestamp());
     };
     println!(
         "Processing {} valid logs at {}",
@@ -70,7 +72,7 @@ pub async fn fetch_canister_logs() -> anyhow::Result<()> {
     );
 
     // generate proofs using redstone api and pyth api
-    let responses = fetch_pricing_data(latest_valid_logs).await;
+    let responses = fetch_pricing_data(latest_valid_logs.clone()).await;
     println!(
         "Processed {} valid logs at {}",
         responses.len(),
@@ -88,7 +90,9 @@ pub async fn fetch_canister_logs() -> anyhow::Result<()> {
     }
 
     println!("Responses pushed to canister\n");
-    Ok(())
+    // get the latest timestamp from the logs and resume from there
+    let latest_log_timestamp = latest_valid_logs.last().unwrap();
+    Ok(latest_log_timestamp.timestamp)
 }
 
 pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult> {
