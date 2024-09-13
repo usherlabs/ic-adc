@@ -24,6 +24,10 @@ impl LogPollerState {
         type_name::<Self>().split(":").last().unwrap()
     }
 
+    pub fn new(start_timestamp: u64) -> Self {
+        Self { start_timestamp }
+    }
+
     /// save this struct to a particular point in state
     pub fn save_state(&self) -> Result<()> {
         let storage_path: PathBuf = Self::get_storage_path();
