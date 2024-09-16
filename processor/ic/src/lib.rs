@@ -1,6 +1,7 @@
 use candid::Principal;
 use core::panic;
-use ic_cdk::api::time;
+use hex;
+use ic_cdk::api::{call, time};
 use ic_cdk::{println, storage};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
@@ -45,9 +46,21 @@ async fn remove_from_whitelist(principal: Principal) {
 /// where `currency_pairs` is a comma seperated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
-fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
+async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     let caller_principal = ic_cdk::caller();
-    let request_id = time().to_string();
+
+    // derive the request id
+    let (random_bytes,): (Vec<u8>,) =
+        ic_cdk::call(Principal::management_canister(), "raw_rand", ())
+            .await
+            .unwrap();
+    let random_hex_byte: String = hex::encode(random_bytes)
+        .get(0..5)
+        .unwrap_or_default()
+        .to_string();
+    let request_id = format!("{}_{}", time().to_string(), random_hex_byte);
+
+    println!("{request_id}");
     if !whitelist::is_whitelisted(caller_principal) {
         panic!(
             "canister with principal:{} is not allowed to call this method",
