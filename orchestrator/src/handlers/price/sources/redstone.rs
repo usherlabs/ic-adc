@@ -3,6 +3,7 @@ use anyhow::{Ok, Result};
 use serde_json::Value;
 
 use crate::handlers::price::traits::PricingDataSource;
+use crate::helpers::verity::get_verity_client;
 
 #[derive(Debug)]
 pub struct Redstone {}
@@ -22,10 +23,9 @@ impl PricingDataSource for Redstone {
     async fn get_price(ticker: String) -> Result<f64> {
         let request_url = Self::get_url(ticker).await?;
         // Send a GET request to the API using the verity client
-        // TODO: enable the use of verity client after prover issue has been fixed
-        // let verity_client = get_verity_client();
-        // let response = verity_client.get(&request_url).send().await?.text().await?;
-        let response = reqwest::get(&request_url).await?.text().await?;
+        let verity_client = get_verity_client();
+        let response = verity_client.get(&request_url).send().await.unwrap().text().await.unwrap();
+        // let response = reqwest::get(&request_url).await?.text().await?;
 
         // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
