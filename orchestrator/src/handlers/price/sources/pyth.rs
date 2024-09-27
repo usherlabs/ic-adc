@@ -100,8 +100,14 @@ impl PricingDataSource for Pyth {
             None => anyhow::bail!("Missing quote currency part"),
         };
 
-        let base_price = Self::get_price(base).await?;
-        let quote_price = Self::get_price(quote).await?;
+        // let base_price = Self::get_price(base).await?;
+        // let quote_price = Self::get_price(quote).await?;
+        // @dev try parallelizing the call to get the base and quote price
+        let (base_price, quote_price) =
+            tokio::join!(Self::get_price(base), Self::get_price(quote));
+
+        let base_price = base_price?;
+        let quote_price = quote_price?;
 
         Ok(base_price / quote_price)
     }

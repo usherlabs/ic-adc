@@ -98,8 +98,7 @@ pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult
         let request = event.logs.clone();
         let request_options: types::RequestOpts = request.clone().opts;
         let mut price_response = Response::from(request.clone());
-
-        // if the price option is set to true then we should
+        // if the price option is set to true then we should fetch price data
         if request_options.price {
             let process_status = price_response.process_prices().await;
             match process_status {

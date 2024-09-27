@@ -1,9 +1,11 @@
-mode: Dev
+mode: Prod
 port: 8080
 publish-socket: /tmp/verity/publish.socket
 request-socket: /tmp/verity/request.socket
-notary-gateway: 127.0.0.1
-notary-host: 127.0.0.1
+notary-gateway: notary-au-1.verity.usher.so
+notary-host: notary-au-1.verity.usher.so
 notary-port: 7047
-cert-url: tlsnotaryserver.io
+cert-url: notary-au-1.verity.usher.so
 proofs-dir: ../proofs
+zmq-socket: tcp://*:5556
+num-threads: 2
