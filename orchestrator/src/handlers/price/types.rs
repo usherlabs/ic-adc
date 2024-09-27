@@ -118,9 +118,17 @@ pub struct RequestOpts {
 impl CurrencyPair {
     async fn fetch_prices(&mut self) -> Result<()> {
         // fetch price from redstone
-        let redstone_price = Redstone::get_pair_price(self.to_string()).await.ok();
+        // let redstone_price = Redstone::get_pair_price(self.to_string()).await.ok();
         // fetch price from pyth
-        let pyth_price = Pyth::get_pair_price(self.to_string()).await.ok();
+        // let pyth_price = Pyth::get_pair_price(self.to_string()).await.ok();
+        // @dev try parallelizing the call to get the base and quote price
+        let (redstone_price, pyth_price) = tokio::join!(
+            Redstone::get_pair_price(self.to_string()),
+            Pyth::get_pair_price(self.to_string())
+        );
+
+        let redstone_price = redstone_price.ok();
+        let pyth_price = pyth_price.ok();
 
         // update the struct if both are available
         let sources = vec![redstone_price, pyth_price];
