@@ -3,6 +3,7 @@ use anyhow::{Ok, Result};
 use serde_json::Value;
 
 use crate::handlers::price::traits::PricingDataSource;
+use crate::helpers::verity::get_verity_client;
 
 #[derive(Debug)]
 pub struct Pyth {}
@@ -55,9 +56,15 @@ impl PricingDataSource for Pyth {
 
         // Send a GET request to the API
         // TODO: enable the use of verity client after prover issue has been fixed
-        // let verity_client = get_verity_client();
-        // let response = verity_client.get(&request_url).send().await?.text().await?;
-        let response = reqwest::get(&request_url).await?.text().await?;
+        let verity_client = get_verity_client();
+        let response = verity_client
+            .get(&request_url)
+            .send()
+            .await?
+            .text()
+            .await?
+            .to_string();
+        // let response = reqwest::get(&request_url).await?.text().await?;
 
         // // Parse the JSON response
         let data: Value = serde_json::from_str(&response)?;
@@ -93,8 +100,14 @@ impl PricingDataSource for Pyth {
             None => anyhow::bail!("Missing quote currency part"),
         };
 
-        let base_price = Self::get_price(base).await?;
-        let quote_price = Self::get_price(quote).await?;
+        // let base_price = Self::get_price(base).await?;
+        // let quote_price = Self::get_price(quote).await?;
+        // @dev try parallelizing the call to get the base and quote price
+        let (base_price, quote_price) =
+            tokio::join!(Self::get_price(base), Self::get_price(quote));
+
+        let base_price = base_price?;
+        let quote_price = quote_price?;
 
         Ok(base_price / quote_price)
     }
