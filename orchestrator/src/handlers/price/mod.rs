@@ -66,7 +66,7 @@ pub async fn fetch_canister_logs() -> anyhow::Result<u64> {
         return Ok(get_utc_timestamp());
     };
     println!(
-        "Processing {} valid logs at {}",
+        "\nProcessing {} valid logs at {}",
         latest_valid_logs.len(),
         Utc::now().to_string()
     );
@@ -99,6 +99,8 @@ pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult
     let mut responses: Vec<ResponseResult> = vec![];
 
     for event in event_logs {
+        println!("processing Log-{}: {:?}", event.index, event.logs);
+
         let request = event.logs.clone();
         let request_options: types::RequestOpts = request.clone().opts;
         let mut price_response = Response::from(request.clone());
