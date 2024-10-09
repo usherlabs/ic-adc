@@ -1,16 +1,14 @@
-use k256::ecdsa::SigningKey;
-use verity_client::client::{AnalysisConfig, VerityClient, VerityClientConfig};
-
+use k256::SecretKey;
+use rand::rngs::OsRng;
 use crate::config::Config;
+use verity_client::client::{AnalysisConfig, VerityClient, VerityClientConfig};
 
 pub const DEFAULT_PROVER_URL: &str = "http://127.0.0.1:8080";
 pub const DEFAULT_PROVER_ZMQ_URL: &str = "tcp://127.0.0.1:8000";
-pub const DEFAULT_ANALYSIS_URL: &str = "http://127.0.0.1:8000";
 
 pub fn get_verity_client() -> VerityClient {
     let config = Config::env();
-    let mut rng = rand::thread_rng();
-    let signing_key = SigningKey::random(&mut rng);
+    let secret_key = SecretKey::random(&mut OsRng);
 
     let verity_config = VerityClientConfig {
         prover_url: config.prover_url,
