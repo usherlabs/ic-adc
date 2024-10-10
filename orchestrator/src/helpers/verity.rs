@@ -5,7 +5,7 @@ use verity_client::client::{AnalysisConfig, VerityClient, VerityClientConfig};
 use crate::config::Config;
 
 pub const DEFAULT_PROVER_URL: &str = "http://127.0.0.1:8080";
-pub const DEFAULT_PROVER_ZMQ_URL: &str = "tcp://127.0.0.1:8000";
+pub const DEFAULT_PROVER_ZMQ_URL: &str = "tcp://127.0.0.1:5556";
 
 pub fn get_verity_client() -> VerityClient {
     let config = Config::env();
