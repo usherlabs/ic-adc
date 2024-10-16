@@ -18,7 +18,7 @@ The ADC serves as an example of using the Internet Computer (IC) as a decentrali
 
 ## Getting Started
 
-The ADC works similarly to the native [IC Exchange Rate Canister](https://github.com/internetcomputer/exchange-rate-canister). Calling Canisters integrate with the ADC by making [XNET calls](https://internetcomputer.org/how-it-works/message-routing/) and waiting for a response from the ADC.
+The ADC works similarly to the native [IC Exchange Rate Canister](https://github.com/dfinity/exchange-rate-canister). Calling Canisters integrate with the ADC by making [XNET calls](https://internetcomputer.org/how-it-works/message-routing/) and waiting for a response from the ADC.
 
 You can find an example of this implementation in the [`example_caller`](./example_caller) folder.
 
