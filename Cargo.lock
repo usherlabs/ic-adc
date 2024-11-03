@@ -4025,7 +4025,7 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 [[package]]
 name = "verity-client"
 version = "0.0.1-alpha.1"
-source = "git+https://github.com/usherlabs/ccamp?rev=6f66ab42d241ae7f7c63755d0a5f4a36cd70d65f#6f66ab42d241ae7f7c63755d0a5f4a36cd70d65f"
+source = "git+https://github.com/usherlabs/ccamp?rev=9053222afab99f828d979ce50e9528b0fd52d577#9053222afab99f828d979ce50e9528b0fd52d577"
 dependencies = [
  "anyhow",
  "base64 0.22.1",

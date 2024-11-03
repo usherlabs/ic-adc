@@ -16,7 +16,14 @@ impl Pyth {
         let request_url = "https://hermes.pyth.network/v2/price_feeds".to_string();
 
         let mut ticker_id: Option<String> = None;
-        let response = reqwest::get(request_url).await?.text().await?;
+        let verity_client = get_verity_client();
+        let response = verity_client
+            .get(&request_url)
+            .send()
+            .await?
+            .text()
+            .await?
+            .to_string();
         let api_response: Vec<Value> = serde_json::from_str(&response)?;
 
         for item in api_response {
@@ -103,8 +110,7 @@ impl PricingDataSource for Pyth {
         // let base_price = Self::get_price(base).await?;
         // let quote_price = Self::get_price(quote).await?;
         // @dev try parallelizing the call to get the base and quote price
-        let (base_price, quote_price) =
-            tokio::join!(Self::get_price(base), Self::get_price(quote));
+        let (base_price, quote_price) = tokio::join!(Self::get_price(base), Self::get_price(quote));
 
         let base_price = base_price?;
         let quote_price = quote_price?;
