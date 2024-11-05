@@ -13,7 +13,7 @@ pub struct Request {
     pub pairs: Vec<String>,
     /// Contains information about which information should be fetched about the pairs in this request
     pub opts: RequestOpts,
-    // add other proprties about the price here
+    // add other properties about the price here
 }
 
 impl Request {
@@ -41,7 +41,7 @@ pub struct Response {
     /// the pairs to be processed, currently these are currency pairs but they will eventually be proofs
     pub pairs: Vec<CurrencyPair>,
     /// when we `convert` a request to a response, the price/proof information is not fetched yet
-    /// this property indicates if the metadata information about this request has been succesfully fetched
+    /// this property indicates if the metadata information about this request has been successfully fetched
     /// and is ready to be sent to the canister
     processed: bool,
 }

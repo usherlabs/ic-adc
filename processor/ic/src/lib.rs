@@ -1,7 +1,7 @@
 use candid::Principal;
 use core::panic;
 use hex;
-use ic_cdk::api::{call, time};
+use ic_cdk::api::time;
 use ic_cdk::{println, storage};
 use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
@@ -14,7 +14,7 @@ thread_local! {
     static REQUEST_RESPONSE_BUFFER: RefCell<HashMap<String, bool>> = RefCell::default();
 }
 
-/// use this variable to control the max number of currencypairs
+/// use this variable to control the max number of currency pairs
 /// that can be contained in one request
 const REQUEST_CURRENCY_PAIR_LIMIT: usize = 10;
 
@@ -43,7 +43,7 @@ async fn remove_from_whitelist(principal: Principal) {
 
 #[update]
 /// requests prices from the orchestrator
-/// where `currency_pairs` is a comma seperated list of pairs
+/// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
 async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
@@ -120,7 +120,7 @@ async fn is_canister_whitelisted(principal: Principal) -> bool {
 
 // --------------------------- upgrade hooks ------------------------- //
 #[pre_upgrade]
-/// backuo
+/// backup
 fn pre_upgrade() {
     let cloned_buffer = REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().clone());
     let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
