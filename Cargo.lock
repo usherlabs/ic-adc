@@ -2179,16 +2179,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 
 [[package]]
-name = "mime_guess"
-version = "2.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7c44f8e672c00fe5308fa235f821cb4198414e1c77935c1ab6948d3fd78550e"
-dependencies = [
- "mime",
- "unicase",
-]
-
-[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2422,8 +2412,6 @@ dependencies = [
  "ic-cdk 0.13.2",
  "ic-identity-hsm",
  "ic-utils",
- "k256",
- "rand",
  "reqwest",
  "serde",
  "serde_json",
@@ -2924,7 +2912,6 @@ dependencies = [
  "js-sys",
  "log",
  "mime",
- "mime_guess",
  "native-tls",
  "once_cell",
  "percent-encoding",
@@ -3930,15 +3917,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "unicase"
-version = "2.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7d2d4dafb69621809a81864c9c1b864479e1235c0dd4e199924b9742439ed89"
-dependencies = [
- "version_check",
-]
-
-[[package]]
 name = "unicode-bidi"
 version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4025,16 +4003,12 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 [[package]]
 name = "verity-client"
 version = "0.0.1-alpha.1"
-source = "git+https://github.com/usherlabs/ccamp?rev=6f66ab42d241ae7f7c63755d0a5f4a36cd70d65f#6f66ab42d241ae7f7c63755d0a5f4a36cd70d65f"
+source = "git+https://github.com/usherlabs/ccamp?branch=feature/ic-af-move-analysis-integration#9b4f1daad718913365deea45f67a9224a9a9a364"
 dependencies = [
  "anyhow",
- "base64 0.22.1",
- "chrono",
  "http",
- "k256",
  "reqwest",
  "serde",
- "serde_json",
  "thiserror",
  "tokio",
  "uuid",

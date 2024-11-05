@@ -18,7 +18,7 @@ ic-agent = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d53
 ic-cdk = "0.13.1"
 ic-identity-hsm = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
 ic-utils = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
-verity-client = { git = "https://github.com/usherlabs/ccamp", rev = "9053222afab99f828d979ce50e9528b0fd52d577" }
+verity-client = { git = "https://github.com/usherlabs/ccamp", branch = "feature/ic-af-move-analysis-integration" }
 thiserror = "1.0.63"
 time = { version = "0.3.9", features = [
     "serde",
@@ -31,5 +31,3 @@ reqwest = "0.12.5"
 eyre = "0.6"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-k256 = { version = "0.13", features = ["pem"] }
-rand = "0.8"
