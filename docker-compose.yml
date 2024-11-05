@@ -19,6 +19,6 @@ services:
       - ICP_IDENTITY_FILEPATH=./identity.pem
       - JOB_SCHEDULE=1/30 * * * * *
       - PROVER_URL=http://127.0.0.1:8080
-      - PROVER_ZMQ_URL=tcp://127.0.0.1:8000
+      - PROVER_ZMQ_URL=tcp://127.0.0.1:5556
     # depends_on:
     #   - verity-prover
