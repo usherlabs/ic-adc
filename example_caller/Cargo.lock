@@ -277,22 +277,22 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "ic-cdk"
-version = "0.13.4"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "393d356e44d2470c90562356d4bde631b8addb5d81b7d29b0b58e17be7f1a2ca"
+checksum = "dd8ecacd682fa05a985253592963306cb9799622d7b1cce4b1edb89c6ec85be1"
 dependencies = [
  "candid",
  "ic-cdk-macros",
- "ic0 0.23.0",
+ "ic0",
  "serde",
  "serde_bytes",
 ]
 
 [[package]]
 name = "ic-cdk-macros"
-version = "0.13.3"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b2a7d0338dbd29d63df3445402dc9cd792d2f65ceccf36d4f9a88529ca2b62d"
+checksum = "0d4d857135deef20cc7ea8f3869a30cd9cfeb1392b3a81043790b2cd82adc3e0"
 dependencies = [
  "candid",
  "proc-macro2",
@@ -304,23 +304,17 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk-timers"
-version = "0.7.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "054727a3a1c486528b96349817d54290ff70df6addf417def456ea708a16f7fb"
+checksum = "0c7c528bbb3d4d934b43a364855995d318649217c7510f40f92ad52eba3ff7be"
 dependencies = [
  "futures",
  "ic-cdk",
- "ic0 0.21.1",
+ "ic0",
  "serde",
  "serde_bytes",
  "slotmap",
 ]
-
-[[package]]
-name = "ic0"
-version = "0.21.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a54b5297861c651551676e8c43df805dad175cc33bc97dbd992edbbb85dcbcdf"
 
 [[package]]
 name = "ic0"

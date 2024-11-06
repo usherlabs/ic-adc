@@ -3,7 +3,6 @@ use core::panic;
 use hex;
 use ic_cdk::api::time;
 use ic_cdk::{println, storage};
-use ic_cdk_macros::*;
 use std::{cell::RefCell, collections::HashMap};
 use types::{ErrorResponse, Request, RequestOpts, Response};
 use verity_dp_ic::{owner, whitelist};
@@ -19,29 +18,29 @@ thread_local! {
 const REQUEST_CURRENCY_PAIR_LIMIT: usize = 10;
 
 // @dev testing command
-#[query]
+#[ic_cdk::query]
 fn name() -> String {
     format!("adc")
 }
 
-#[init]
+#[ic_cdk::init]
 async fn init() {
     owner::init_owner()
 }
 
-#[update]
+#[ic_cdk::update]
 async fn add_to_whitelist(principal: Principal) {
     owner::only_owner();
     whitelist::add_to_whitelist(principal)
 }
 
-#[update]
+#[ic_cdk::update]
 async fn remove_from_whitelist(principal: Principal) {
     owner::only_owner();
     whitelist::add_to_whitelist(principal)
 }
 
-#[update]
+#[ic_cdk::update]
 /// requests prices from the orchestrator
 /// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT"
@@ -88,7 +87,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     return request_id;
 }
 
-#[update]
+#[ic_cdk::update]
 /// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
 /// it would receive the response for a request made and forward it to the requesting canister
 async fn receive_orchestrator_response(response: Result<Response, ErrorResponse>) {
@@ -112,22 +111,22 @@ async fn receive_orchestrator_response(response: Result<Response, ErrorResponse>
         ic_cdk::call(response_owner, "receive_adc_response", (response,)).await;
 }
 
-#[query]
+#[ic_cdk::query]
 async fn is_canister_whitelisted(principal: Principal) -> bool {
     owner::only_owner();
     whitelist::is_whitelisted(principal)
 }
 
 // --------------------------- upgrade hooks ------------------------- //
-#[pre_upgrade]
-/// backup
+#[ic_cdk::pre_upgrade]
+/// backuo
 fn pre_upgrade() {
     let cloned_buffer = REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().clone());
     let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
 
     storage::stable_save((cloned_buffer, cloned_whitelist)).unwrap()
 }
-#[post_upgrade]
+#[ic_cdk::post_upgrade]
 async fn post_upgrade() {
     let (cached_buffer, cached_whitelist): (HashMap<String, bool>, HashMap<Principal, bool>) =
         storage::stable_restore().unwrap();
