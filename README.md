@@ -18,7 +18,7 @@ The ADC serves as an example of using the Internet Computer (IC) as a decentrali
 
 ## Getting Started
 
-The ADC works similarly to the native [IC Exchange Rate Canister](https://github.com/internetcomputer/exchange-rate-canister). Calling Canisters integrate with the ADC by making [XNET calls](https://internetcomputer.org/how-it-works/message-routing/) and waiting for a response from the ADC.
+The ADC works similarly to the native [IC Exchange Rate Canister](https://github.com/dfinity/exchange-rate-canister). Calling Canisters integrate with the ADC by making [XNET calls](https://internetcomputer.org/how-it-works/message-routing/) and waiting for a response from the ADC.
 
 You can find an example of this implementation in the [`example_caller`](./example_caller) folder.
 
@@ -37,7 +37,7 @@ When you make a request, you receive an `id` that you can use to track the respo
 
 ```rust
 #[ic_cdk::update]
-/// where `currency_pairs` is a comma seperated list of pairs
+/// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT,sol"
 async fn submit_adc_request(currency_pairs: String) -> String {
     let adc_canister_request_method = "request_data";
@@ -61,7 +61,7 @@ async fn submit_adc_request(currency_pairs: String) -> String {
 2. **Receiving a response for a request:**
 
 To receive a response, an `update` function called `receive_adc_response` must be present on the Calling Canister.
-This method recieves a `result` which could either contain information about the response or the error encountered while trying to fetch the response
+This method receives a `result` which could either contain information about the response or the error encountered while trying to fetch the response
 
 ```rust
 

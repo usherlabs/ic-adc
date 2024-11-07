@@ -13,7 +13,7 @@ thread_local! {
     static REQUEST_RESPONSE_BUFFER: RefCell<HashMap<String, bool>> = RefCell::default();
 }
 
-/// use this variable to control the max number of currencypairs
+/// use this variable to control the max number of currency pairs
 /// that can be contained in one request
 const REQUEST_CURRENCY_PAIR_LIMIT: usize = 10;
 
@@ -42,7 +42,7 @@ async fn remove_from_whitelist(principal: Principal) {
 
 #[ic_cdk::update]
 /// requests prices from the orchestrator
-/// where `currency_pairs` is a comma seperated list of pairs
+/// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
 async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {

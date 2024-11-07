@@ -24,7 +24,7 @@ impl PricingDataSource for Redstone {
         let request_url = Self::get_url(ticker).await?;
         // Send a GET request to the API using the verity client
         let verity_client = get_verity_client();
-        let response = verity_client.get(&request_url).send().await.unwrap().text().await.unwrap();
+        let response = verity_client.get(&request_url).send().await.unwrap().subject.text().await.unwrap();
         // let response = reqwest::get(&request_url).await?.text().await?;
 
         // Parse the JSON response

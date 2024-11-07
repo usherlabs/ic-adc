@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 use crate::helpers::logs::ic::{DEFAULT_IC_GATEWAY, DEFAULT_IC_GATEWAY_TRAILING_SLASH, DEFAULT_JOB_SCHEDULE, MAMANGEMENT_CANISTER_ID};
-use crate::helpers::utils::{get_env_or_default, get_env_or_none};
+use crate::helpers::utils::get_env_or_default;
 use crate::helpers::verity::{DEFAULT_PROVER_URL, DEFAULT_PROVER_ZMQ_URL};
 
 use super::helpers::logs::ic::{create_agent, DEFAULT_IDENTITY_PATH, DEFAULT_SHARED_LOCAL_BIND};
@@ -26,8 +26,6 @@ pub struct Config {
     pub prover_url: String,
     /// ZMQ URL of the prover
     pub prover_zmq_url: String,
-    /// analysis URL
-    pub analysis_url: Option<String>,
     /// is this dev or prod env
     pub is_dev: bool,
 }
@@ -48,7 +46,6 @@ impl Config {
         let job_schedule = get_env_or_default("JOB_SCHEDULE", DEFAULT_JOB_SCHEDULE);
         let prover_url = get_env_or_default("PROVER_URL", DEFAULT_PROVER_URL);
         let prover_zmq_url = get_env_or_default("PROVER_ZMQ_URL", DEFAULT_PROVER_ZMQ_URL);
-        let analysis_url = get_env_or_none("ANALYSIS_URL");
         let is_mainnet = matches!(
             &icp_url[..],
             DEFAULT_IC_GATEWAY | DEFAULT_IC_GATEWAY_TRAILING_SLASH
@@ -61,8 +58,7 @@ impl Config {
             job_schedule: job_schedule,
             prover_url: prover_url,
             prover_zmq_url: prover_zmq_url,
-            analysis_url: analysis_url,
-            is_dev: !is_mainnet
+            is_dev: !is_mainnet,
         }
     }
 }

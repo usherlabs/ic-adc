@@ -11,9 +11,9 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = "0.10"
 ic-cdk = "0.16"
-ic-cdk-timers = "0.10" 
-verity_dp_ic = { git = "https://github.com/usherlabs/ccamp.git", rev = "f8a9230c7dc2fac20604f4b7e3cf71a9f7e71e7f"} # TODO: move this to the workspace file
+ic-cdk-timers = "0.10"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 hex = "0.4.3"
+verity_dp_ic = { workspace = true }

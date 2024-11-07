@@ -21,6 +21,7 @@ impl Pyth {
             .get(&request_url)
             .send()
             .await?
+            .subject
             .text()
             .await?
             .to_string();
@@ -68,6 +69,7 @@ impl PricingDataSource for Pyth {
             .get(&request_url)
             .send()
             .await?
+            .subject
             .text()
             .await?
             .to_string();

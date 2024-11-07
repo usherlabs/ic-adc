@@ -1,6 +1,9 @@
 use crate::{
     config::Config,
-    helpers::{logs::{ic::get_canister_logs, types::EventLog}, utils::get_utc_timestamp},
+    helpers::{
+        logs::{ic::get_canister_logs, types::EventLog},
+        utils::get_utc_timestamp,
+    },
 };
 // use anyhow::Result;
 use chrono::prelude::*;
@@ -27,22 +30,20 @@ pub async fn handler() {
         return;
     }
 
-    // set the running state to true to prevent further instances untill this is complete
+    // set the running state to true to prevent further instances until this is complete
     IS_RUNNING.store(true, Ordering::SeqCst);
 
     let fetch_logs_response = fetch_canister_logs().await;
-    
+
     if let Err(e) = fetch_logs_response {
         println!("Error fetching canister logs: {}", e)
     } else {
         // if theres no error then update the last timestamp
-        let updated_state = LogPollerState::new(
-            fetch_logs_response.unwrap()
-        );
+        let updated_state = LogPollerState::new(fetch_logs_response.unwrap());
         updated_state.save_state().unwrap();
     }
 
-    // set the running state to false to enable further instances untill this is complete
+    // set the running state to false to enable further instances until this is complete
     IS_RUNNING.store(false, Ordering::SeqCst);
 }
 
@@ -61,7 +62,6 @@ pub async fn fetch_canister_logs() -> anyhow::Result<u64> {
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
-    
     if latest_valid_logs.len() == 0 {
         return Ok(get_utc_timestamp());
     };
