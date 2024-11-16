@@ -1,0 +1,40 @@
+type ProofTypes = variant {
+  Pyth : text;
+  Redstone : text;
+};
+
+type Token = record {
+  ticker : text;
+  proofs : opt vec ProofTypes;
+};
+
+type CurrencyPair = record {
+  base : Token;
+  quote : opt Token;
+  error : opt text;
+  price : opt float64;
+  repr : text;
+};
+
+type ADCResponse = record {
+  id : text;
+  owner : principal;
+  pairs : vec CurrencyPair;
+  processed : bool;
+};
+
+type ErrorResponse = record {
+  id : text;
+  owner : principal;
+  message : text;
+};
+
+type ResponseResult = variant {
+  ok : ADCResponse;
+  err : ErrorResponse;
+};
+
+service : {
+  "submit_adc_request" : (text) -> (text);
+  "receive_adc_response" : (ResponseResult) -> ();
+};

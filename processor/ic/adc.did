@@ -1,41 +1,45 @@
 type CurrencyPair = record {
-    base: text;
-    quote: text;
-    price: opt float64;
-    sources: opt vec float64;
-    repr: text;
+  base : text;
+  quote : text;
+  price : opt float64;
+  sources : opt vec float64;
+  repr : text;
 };
 
 type PriceResponse = record {
-    id: text;
-    owner: principal;
-    pairs: vec CurrencyPair;
-    processed: bool;
+  id : text;
+  owner : principal;
+  pairs : vec CurrencyPair;
+  processed : bool;
 };
 
 type ErrorResponse = record {
-  id: text;
-  owner: principal;
-  message: text;
+  id : text;
+  owner : principal;
+  message : text;
 };
 
 type ResponseResult = variant {
-  ok: PriceResponse;
-  err: ErrorResponse;
+  ok : PriceResponse;
+  err : ErrorResponse;
 };
 
 type PriceOpts = record {
-    price: bool
+  price : bool;
 };
 
 service : {
-    "name": () -> (text) query;
-    // whitelist operations
-    "add_to_whitelist": (canister_principal: principal) -> ();
-    "remove_from_whitelist": (canister_principal: principal) -> ();
-    "is_canister_whitelisted": (canister_principal: principal) -> (bool) query;
-    
-    // price request/response operations
-    "request_data": (comma_seperated_pairs: text, opts: PriceOpts) -> (text);
-    "receive_orchestrator_response": (price_response: ResponseResult) -> ();
-}
+  "name" : () -> (text) query;
+  // whitelist operations
+  "add_to_whitelist" : (canister_principal : principal) -> ();
+  "remove_from_whitelist" : (canister_principal : principal) -> ();
+  "is_canister_whitelisted" : (canister_principal : principal) -> (bool) query;
+
+  // price request/response operations
+  "request_data" : (comma_seperated_pairs : text, opts : PriceOpts) -> (text);
+  "receive_orchestrator_response" : (price_response : ResponseResult) -> ();
+
+  // state variables getter and setter
+  "get_verifier_canister" : () -> (opt principal) query;
+  "set_verifier_canister" : (manager_verifier_canister : principal) -> ();
+};
