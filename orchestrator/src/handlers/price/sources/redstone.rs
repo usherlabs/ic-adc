@@ -1,9 +1,11 @@
 use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
+use verity_dp_ic::verify::types::ProofTypes;
 
 use crate::handlers::price::traits::PricingDataSource;
 use crate::helpers::verity::get_verity_client;
+
 
 #[derive(Debug)]
 pub struct Redstone {}
@@ -19,43 +21,30 @@ impl PricingDataSource for Redstone {
         ))
     }
 
-    /// get latest price data for a currency from redstone api
-    async fn get_price(ticker: String) -> Result<f64> {
+    async fn get_proof(ticker: String) -> Result<ProofTypes> {
+        // construct the request URL
         let request_url = Self::get_url(ticker).await?;
-        // Send a GET request to the API using the verity client
         let verity_client = get_verity_client();
-        let response = verity_client.get(&request_url).send().await.unwrap().subject.text().await.unwrap();
-        // let response = reqwest::get(&request_url).await?.text().await?;
 
+        // get the proof using the verity client
+        let response = verity_client.get(&request_url).send().await?;
+
+        // check for a succesfull and valid response
+        let http_response_string= response.subject.text().await?;  
+        Self::validate_response(http_response_string).await?;
+
+        return Ok(ProofTypes::Redstone(response.proof));
+    }
+
+    /// Validate the response gotten before saving and sending the proof
+    async fn validate_response(http_response_string: String) -> Result<()> {
         // Parse the JSON response
-        let data: Value = serde_json::from_str(&response)?;
+        let data: Value = serde_json::from_str(&http_response_string)?;
 
         // Access the 'price' property and return it
         data[0]["value"]
             .as_f64()
             .context("Price not available: JSON structure changed")
-            .and_then(|exp| Ok(exp))
-    }
-
-    /// Get pair price i.e "BTC/USDT"
-    async fn get_pair_price(currency_pair: String) -> Result<f64> {
-        // Split the string into an iterator of substrings
-        let parts: Vec<&str> = currency_pair.split('/').collect();
-
-        // Assuming the first part is the quote and the second part is the base
-        let base = match parts.get(0) {
-            Some(base) => base.to_string(),
-            None => anyhow::bail!("Missing base currency part"),
-        };
-
-        let quote = match parts.get(1) {
-            Some(quote) => quote.to_string(),
-            None => anyhow::bail!("Missing quote currency part"),
-        };
-
-        let base_price = Self::get_price(base).await?;
-        let quote_price = Self::get_price(quote).await?;
-
-        Ok(base_price / quote_price)
+            .and_then(|_| Ok(()))
     }
 }

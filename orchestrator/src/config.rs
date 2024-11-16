@@ -1,10 +1,13 @@
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use candid::Principal;
 use ic_agent::Agent;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-use crate::helpers::logs::ic::{DEFAULT_IC_GATEWAY, DEFAULT_IC_GATEWAY_TRAILING_SLASH, DEFAULT_JOB_SCHEDULE, MAMANGEMENT_CANISTER_ID};
+use crate::helpers::logs::ic::{
+    DEFAULT_IC_GATEWAY, DEFAULT_IC_GATEWAY_TRAILING_SLASH, DEFAULT_JOB_SCHEDULE,
+    MAMANGEMENT_CANISTER_ID,
+};
 use crate::helpers::utils::get_env_or_default;
 use crate::helpers::verity::{DEFAULT_PROVER_URL, DEFAULT_PROVER_ZMQ_URL};
 
@@ -37,6 +40,18 @@ impl Config {
         Ok(agent)
     }
 
+    /// Get the information of the connected notary
+    pub async fn get_connected_notary(&self) -> Result<NotaryInformation> {
+        let notary_info_url = format!("{}/notaryinfo",self.prover_url.clone());
+        let notary_information = reqwest::get(notary_info_url)
+            .await?
+            .json::<NotaryInformation>()
+            .await?;
+
+        Ok(notary_information)
+    }
+
+    /// Derive this struct by reading and populating the right environment variables
     pub fn env() -> Self {
         let icp_url = get_env_or_default("ICP_URL", DEFAULT_SHARED_LOCAL_BIND);
         let canister_principal = get_env_or_default("ADC_CANISTER", MAMANGEMENT_CANISTER_ID);
@@ -61,4 +76,13 @@ impl Config {
             is_dev: !is_mainnet,
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotaryInformation {
+    pub version: String,
+    pub public_key: String,
+    pub git_commit_hash: String,
+    pub git_commit_timestamp: String,
 }

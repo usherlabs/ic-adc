@@ -22,16 +22,3 @@ async fn main() -> Result<(), JobSchedulerError> {
     cron.start().await?;
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use handlers::price::fetch_canister_logs;
-
-    use super::*; // Import everything from the parent module
-
-    #[tokio::test]
-    async fn test_fetch_canister_logs() {
-        //dev: need to be able to test the function without waiting for the cronjob
-        // let _ = fetch_canister_logs().await;
-    }
-}

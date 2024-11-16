@@ -31,3 +31,4 @@ eyre = "0.6"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 verity-client = { workspace = true }
+verity_dp_ic = {workspace = true}
