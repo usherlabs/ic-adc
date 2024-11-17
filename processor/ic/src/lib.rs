@@ -6,7 +6,6 @@ use ic_cdk::{println, storage};
 use state::REQUEST_RESPONSE_BUFFER;
 use std::collections::HashMap;
 use verity_dp_ic::verify::types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
-// use otypes::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
 use utils::{get_currency_pair_price, send_adc_response};
 use verity_dp_ic::{owner, whitelist};
 
@@ -75,7 +74,6 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         .to_string();
     let request_id = format!("{}_{}", time().to_string(), random_hex_byte);
 
-    println!("{request_id}");
     if !whitelist::is_whitelisted(caller_principal) {
         panic!(
             "canister with principal:{} is not allowed to call this method",
@@ -83,8 +81,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         );
     }
     // creates a price request object with an arb id
-    // attach a buffer with valid pending id's
-    // include the caller canister's id to know who to send a response to
+    // include the caller canister's id to let adc know where to send a response to
     let price_request = Request::new(request_id.clone(), caller_principal, currency_pairs, opts);
 
     // validate that this request for data contains a maximum of 10 pairs
@@ -95,6 +92,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         );
     };
     let price_request_stringified = serde_json::to_string(&price_request).unwrap();
+
     // log the price request to be picked up by the orchestrator
     println!("{}", price_request_stringified);
 

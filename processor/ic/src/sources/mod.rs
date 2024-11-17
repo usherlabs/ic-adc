@@ -1,4 +1,3 @@
-use candid::Principal;
 use pyth::Pyth;
 use redstone::Redstone;
 use verity_dp_ic::verify::types::{ProofResponse, ProofTypes, VerificationCanisterResponse};
@@ -53,7 +52,6 @@ pub async fn request_proof_verification(
     stringified_proofs: &Vec<String>,
     notary_pubkey: &String,
 ) -> VerificationCanisterResponse {
-    // TODO: read this variable from an external variable
     let verifier_canister = state::get_verifier_canister().unwrap();
 
     // make a request to the managed verifier canister
