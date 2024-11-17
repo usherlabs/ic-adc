@@ -44,6 +44,6 @@ if [ -z "$VALID_LOG" ] || [ "$VALID_LOG" = "" ]; then
 fi
 
 if [ -z "$TIMESTAMP" ] || [ "$TIMESTAMP" = "" ]; then
-    echo "Test Failed: Timestamp not returned as id deom data request"
+    echo "Test Failed: Timestamp not returned as id of data request"
     exit 1
 fi
