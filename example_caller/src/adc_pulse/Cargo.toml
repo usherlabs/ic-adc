@@ -1,0 +1,17 @@
+[package]
+name = "adc_pulse"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+candid = { workspace = true }
+clap = { workspace = true, features = ["derive", "env"] }
+ic-agent = { workspace = true }
+ic-cdk = { workspace = true }
+rand = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal"] }
+tokio-cron-scheduler = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
