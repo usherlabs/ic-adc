@@ -1,16 +1,5 @@
 [workspace]
-members = ["src/adc_caller", "src/adc_pulse"]
+members = [
+    "src/adc_caller"
+]
 resolver = "2"
-
-[workspace.dependencies]
-anyhow = "1.0"
-candid = "0.10"
-clap = "4.5"
-ic-agent = "0.39"
-ic-cdk = "0.17"
-rand = "0.8"
-serde = "1.0"
-tokio = "1.37"
-tokio-cron-scheduler = "0.13"
-tracing = "0.1"
-tracing-subscriber = "0.3"
