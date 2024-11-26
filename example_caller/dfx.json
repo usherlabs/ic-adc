@@ -1,7 +1,7 @@
 {
   "canisters": {
     "adc_caller": {
-      "candid": "adc_caller.did",
+      "candid": "src/adc_caller/adc_caller.did",
       "package": "adc_caller",
       "type": "rust"
     }

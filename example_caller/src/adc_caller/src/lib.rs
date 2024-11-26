@@ -20,7 +20,6 @@ async fn submit_adc_request(currency_pairs: String) -> String {
     .await
     .unwrap();
 
-    // println!("{:?}", request_id)
     return request_id;
 }
 
