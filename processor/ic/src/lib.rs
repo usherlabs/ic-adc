@@ -5,7 +5,7 @@ use ic_cdk::api::time;
 use ic_cdk::{println, storage};
 use state::REQUEST_RESPONSE_BUFFER;
 use std::collections::HashMap;
-use verity_dp_ic::verify::types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
+use types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
 use utils::{get_currency_pair_price, send_adc_response};
 use verity_dp_ic::{owner, whitelist};
 

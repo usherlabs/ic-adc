@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use candid::Principal;
-use verity_dp_ic::verify::types::{ADCResponse, RequestOpts};
+use types::{ADCResponse, RequestOpts};
 
 #[ic_cdk::update]
 /// where `currency_pairs` is a comma seperated list of pairs

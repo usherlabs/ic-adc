@@ -1,4 +1,4 @@
-use verity_dp_ic::verify::types::{CurrencyPair, ProofTypes, Response, Token};
+use types::{CurrencyPair, ProofTypes, Response, Token};
 
 use super::{
     sources::{pyth::Pyth, redstone::Redstone},

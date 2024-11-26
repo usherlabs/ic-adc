@@ -11,7 +11,7 @@ use poller::LogPollerState;
 use std::{result::Result::{self, Ok}, sync::Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
 use utils::process_proofs;
-use verity_dp_ic::verify::types::{ErrorResponse, Response};
+use types::{ErrorResponse, Response};
 
 pub mod poller;
 pub mod sources;

@@ -1,6 +1,6 @@
 use pyth::Pyth;
 use redstone::Redstone;
-use verity_dp_ic::verify::types::{ProofResponse, ProofTypes, VerificationCanisterResponse};
+use types::{ProofResponse, ProofTypes, VerificationCanisterResponse};
 
 use crate::state;
 
