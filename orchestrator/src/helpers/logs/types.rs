@@ -1,4 +1,4 @@
-use verity_dp_ic::verify::types::Request;
+use types::Request;
 
 
 /// The type to represent DFX results.

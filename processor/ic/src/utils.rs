@@ -1,7 +1,7 @@
 use crate::sources::{get_asset_price_from_proofs, request_proof_verification};
 use candid::Principal;
 use ic_cdk::api::call::RejectionCode;
-use verity_dp_ic::verify::types::{ADCResponse, CurrencyPair, ProofTypes, Token};
+use types::{ADCResponse, CurrencyPair, ProofTypes, Token};
 
 // send a response to the canister who requested pricing daya
 pub fn send_adc_response(

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use verity_dp_ic::verify::types::ProofTypes;
+use types::ProofTypes;
 
 
 pub trait PricingDataSource {

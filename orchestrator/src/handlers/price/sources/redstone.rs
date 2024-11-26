@@ -1,7 +1,7 @@
 use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
-use verity_dp_ic::verify::types::ProofTypes;
+use types::ProofTypes;
 
 use crate::handlers::price::traits::PricingDataSource;
 use crate::helpers::verity::get_verity_client;

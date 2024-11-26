@@ -18,3 +18,4 @@ serde_json = "1.0"
 hex = "0.4.3"
 verity_dp_ic = { workspace = true }
 anyhow = "1.0.93"
+types = { path = "../../types" }

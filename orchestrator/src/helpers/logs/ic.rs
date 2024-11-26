@@ -7,7 +7,7 @@ use ic_utils::call::SyncCall;
 use ic_utils::interfaces::management_canister::{FetchCanisterLogsResponse, MgmtMethod};
 use ic_utils::interfaces::ManagementCanister;
 use time::OffsetDateTime;
-use verity_dp_ic::verify::types::Request;
+use types::Request;
 
 use super::types::DfxResult;
 use super::types::EventLog;
