@@ -3,7 +3,7 @@ use candid::Principal;
 use ic_cdk::api::call::RejectionCode;
 use types::{ADCResponse, CurrencyPair, ProofTypes, Token};
 
-// send a response to the canister who requested pricing daya
+// send a response to the canister who requested pricing data
 pub fn send_adc_response(
     recipient: Principal,
     adc_response: ADCResponse,
@@ -24,11 +24,8 @@ pub async fn get_token_price(token: &Token, notary_pubkey: &String) -> anyhow::R
         .collect();
 
     // request proof response from verification canister
-    let verification_response =
+    let verification_response_proofs =
         request_proof_verification(&stringified_proofs, notary_pubkey).await;
-
-    // get the verificaction response results
-    let verification_response_proofs = verification_response.unwrap().results;
 
     // parse the proof response based on the corresponding proof type
     // to get the price in the response of the http response body of the verified request

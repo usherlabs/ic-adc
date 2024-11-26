@@ -4,7 +4,6 @@ use anyhow::Result;
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
-pub type VerificationCanisterResponse = Result<VerificationResponse, String>;
 pub type ADCResponse = Result<Response, ErrorResponse>;
 
 #[derive(Debug, Clone, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
@@ -86,37 +85,7 @@ pub struct RequestOpts {
     pub price: bool,
 }
 
-#[derive(CandidType, Deserialize, Debug, Clone)]
-pub struct VerificationResponse {
-    pub results: Vec<ProofResponse>,
-    pub root: String,
-    pub signature: String,
-}
-
-#[derive(CandidType, Deserialize, Debug, Clone)]
-pub enum ProofResponse {
-    SessionProof(String),
-    FullProof(String),
-}
-
 // ------ implementations for structs
-impl ProofResponse {
-    pub fn get_http_response_body(&self) -> String {
-        match self {
-            ProofResponse::FullProof(text) => {
-                let http_parts: Vec<&str> = text.split("\n\n").collect();
-                let response = http_parts[1].to_string();
-
-                let response_parts: Vec<&str> = response.split("\r\n\r\n").collect();
-                let http_body = response_parts[1].to_string();
-
-                http_body
-            }
-            ProofResponse::SessionProof(_) => panic!("cannot get http response for session proof"),
-        }
-    }
-}
-
 impl Request {
     pub fn new(
         id: String,

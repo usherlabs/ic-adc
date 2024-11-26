@@ -1,6 +1,7 @@
 use pyth::Pyth;
 use redstone::Redstone;
-use types::{ProofResponse, ProofTypes, VerificationCanisterResponse};
+use types::ProofTypes;
+use verity_dp_ic::verify::types::ProofResponse;
 
 use crate::state;
 
@@ -11,6 +12,9 @@ pub trait PricingDataSource {
     fn get_price(http_body: String) -> anyhow::Result<f64>;
 }
 
+/// Given a proof type and a corresponding proof response
+/// parse the http response json and
+/// get the actual price for the asset which is contained in the response
 pub fn get_asset_price_from_proofs(
     proof_types: &Vec<ProofTypes>,
     verification_response_proofs: &Vec<ProofResponse>,
@@ -35,7 +39,7 @@ pub fn get_asset_price_from_proofs(
     if source_prices.iter().any(|res| res.is_err()) {
         anyhow::bail!("Error getting assset price")
     }
-    
+
     // calculate the average of these responses
     let source_prices_values: Vec<f64> = source_prices
         .iter()
@@ -48,17 +52,18 @@ pub fn get_asset_price_from_proofs(
     Ok(average_asset_price)
 }
 
+/// Request verification from the managed verifier response
 pub async fn request_proof_verification(
     stringified_proofs: &Vec<String>,
     notary_pubkey: &String,
-) -> VerificationCanisterResponse {
+) -> Vec<ProofResponse> {
     let verifier_canister = state::get_verifier_canister().unwrap();
 
     // make a request to the managed verifier canister
     // to get a response which would contain the verified/decrypted proofs sent
-    let (response,): (VerificationCanisterResponse,) = ic_cdk::call(
+    let (response,): (Vec<ProofResponse>,) = ic_cdk::call(
         verifier_canister,
-        "verify_proof_direct",
+        "verify_proof_async",
         (stringified_proofs, notary_pubkey),
     )
     .await
