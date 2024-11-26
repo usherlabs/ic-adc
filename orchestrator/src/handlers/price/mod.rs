@@ -82,8 +82,8 @@ pub async fn fetch_canister_logs(notary_information: Arc<NotaryInformation>) -> 
     );
 
     let agent = config.get_agent().await?;
-    // TODO: get the public key of the notary
     let notary_pubkey = &notary_information.public_key;
+
     // TODO: Could be wiser to batch these responses into a single IC update call
     for response in responses {
         agent
