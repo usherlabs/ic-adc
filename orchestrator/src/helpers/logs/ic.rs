@@ -7,11 +7,11 @@ use ic_utils::call::SyncCall;
 use ic_utils::interfaces::management_canister::{FetchCanisterLogsResponse, MgmtMethod};
 use ic_utils::interfaces::ManagementCanister;
 use time::OffsetDateTime;
+use types::Request;
 
 use super::types::DfxResult;
 use super::types::EventLog;
 use crate::config::Config;
-use crate::handlers::price::types::Request;
 
 pub const MAMANGEMENT_CANISTER_ID: &str = "aaaaa-aa";
 pub const DEFAULT_SHARED_LOCAL_BIND: &str = "http://127.0.0.1:4943";

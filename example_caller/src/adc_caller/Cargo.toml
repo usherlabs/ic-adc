@@ -12,3 +12,4 @@ crate-type = ["cdylib"]
 candid = { workspace = true }
 ic-cdk = { workspace = true }
 serde = { workspace = true }
+types = { workspace = true}

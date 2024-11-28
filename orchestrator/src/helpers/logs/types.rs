@@ -1,4 +1,5 @@
-use crate::handlers::price::types::Request;
+use types::Request;
+
 
 /// The type to represent DFX results.
 pub type DfxResult<T = ()> = anyhow::Result<T>;

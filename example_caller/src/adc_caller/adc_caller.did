@@ -1,35 +1,40 @@
-type CurrencyPair = record {
-    base: text;
-    quote: text;
-    price: opt InformationDetails;
-    repr: text;
+type ProofTypes = variant {
+  Pyth : text;
+  Redstone : text;
 };
 
-type InformationDetails = record {
-    value: float64;
-    sources: vec float64;
+type Token = record {
+  ticker : text;
+  proofs : opt vec ProofTypes;
+};
+
+type CurrencyPair = record {
+  base : Token;
+  quote : opt Token;
+  error : opt text;
+  price : opt float64;
+  repr : text;
 };
 
 type ADCResponse = record {
-    id: text;
-    owner: principal;
-    pairs: vec CurrencyPair;
-    processed: bool;
+  id : text;
+  owner : principal;
+  pairs : vec CurrencyPair;
+  processed : bool;
 };
 
 type ErrorResponse = record {
-  id: text;
-  owner: principal;
-  message: text;
+  id : text;
+  owner : principal;
+  message : text;
 };
 
 type ResponseResult = variant {
-  ok: ADCResponse;
-  err: ErrorResponse;
+  ok : ADCResponse;
+  err : ErrorResponse;
 };
 
-
 service : {
-    "submit_adc_request": (text) -> (text);
-    "receive_adc_response": (ResponseResult) -> ();
-}
+  "submit_adc_request" : (text) -> (text);
+  "receive_adc_response" : (ResponseResult) -> ();
+};

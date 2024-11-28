@@ -1,7 +1,7 @@
 [workspace]
-members = ["orchestrator", "processor/ic"]
+members = ["orchestrator", "processor/ic", "example_caller", "types"]
 resolver = "2"
 
 [workspace.dependencies]
-verity_dp_ic = { path = "./ccamp/src/ic/libraries" }
-verity-client = { path = "./ccamp/src/rs/verity-client" }
+verity_dp_ic = { path = "./ccamp/ic/libraries" }
+verity-client = { path = "./ccamp/rs/verity-client" }

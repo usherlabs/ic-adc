@@ -1,9 +1,11 @@
 use anyhow::Context;
 use anyhow::{Ok, Result};
 use serde_json::Value;
+use types::ProofTypes;
 
 use crate::handlers::price::traits::PricingDataSource;
 use crate::helpers::verity::get_verity_client;
+
 
 #[derive(Debug)]
 pub struct Pyth {}
@@ -16,15 +18,7 @@ impl Pyth {
         let request_url = "https://hermes.pyth.network/v2/price_feeds".to_string();
 
         let mut ticker_id: Option<String> = None;
-        let verity_client = get_verity_client();
-        let response = verity_client
-            .get(&request_url)
-            .send()
-            .await?
-            .subject
-            .text()
-            .await?
-            .to_string();
+        let response = reqwest::get(request_url).await?.text().await?;
         let api_response: Vec<Value> = serde_json::from_str(&response)?;
 
         for item in api_response {
@@ -58,25 +52,25 @@ impl PricingDataSource for Pyth {
         ))
     }
 
-    /// get latest price data for a currency from pyth api
-    async fn get_price(ticker: String) -> Result<f64> {
+    async fn get_proof(ticker: String) -> Result<ProofTypes> {
+        // construct the request URL
         let request_url = Self::get_url(ticker).await?;
-
-        // Send a GET request to the API
-        // TODO: enable the use of verity client after prover issue has been fixed
         let verity_client = get_verity_client();
-        let response = verity_client
-            .get(&request_url)
-            .send()
-            .await?
-            .subject
-            .text()
-            .await?
-            .to_string();
-        // let response = reqwest::get(&request_url).await?.text().await?;
 
-        // // Parse the JSON response
-        let data: Value = serde_json::from_str(&response)?;
+        // get the proof using the verity client
+        let response = verity_client.get(&request_url).send().await?;
+
+        // check for a succesfull and valid response
+        let http_response_string = response.subject.text().await?;
+        Self::validate_response(http_response_string).await?;
+
+        return Ok(ProofTypes::Pyth(response.proof));
+    }
+
+    /// Validate the response gotten before saving and sending the proof
+    async fn validate_response(http_response_string: String) -> Result<()> {
+        // Parse the JSON response
+        let data: Value = serde_json::from_str(&http_response_string)?;
         let price = data[0]["price"]["price"]
             .as_str()
             .context("price.price field is missing")
@@ -86,37 +80,11 @@ impl PricingDataSource for Pyth {
             .context("price.expo field is missing")
             .and_then(|exp| Ok(exp))?;
 
+        // try parsing the price gotten to check for any errors
         let price: f64 = price.parse()?;
         let multiplier = 1.0 as f64 / (10 as f64).powf(exp.abs() as f64);
-        let price: f64 = price * multiplier;
+        let _: f64 = price * multiplier;
 
-        Ok(price)
-    }
-
-    /// Get pair price i.e "BTC/USDT"
-    async fn get_pair_price(currency_pair: String) -> Result<f64> {
-        // Split the string into an iterator of substrings
-        let parts: Vec<&str> = currency_pair.split('/').collect();
-
-        // Assuming the first part is the quote and the second part is the base
-        let base = match parts.get(0) {
-            Some(base) => base.to_string(),
-            None => anyhow::bail!("Missing base currency part"),
-        };
-
-        let quote = match parts.get(1) {
-            Some(quote) => quote.to_string(),
-            None => anyhow::bail!("Missing quote currency part"),
-        };
-
-        // let base_price = Self::get_price(base).await?;
-        // let quote_price = Self::get_price(quote).await?;
-        // @dev try parallelizing the call to get the base and quote price
-        let (base_price, quote_price) = tokio::join!(Self::get_price(base), Self::get_price(quote));
-
-        let base_price = base_price?;
-        let quote_price = quote_price?;
-
-        Ok(base_price / quote_price)
+        Ok(())
     }
 }

@@ -3,15 +3,15 @@ use core::panic;
 use hex;
 use ic_cdk::api::time;
 use ic_cdk::{println, storage};
-use std::{cell::RefCell, collections::HashMap};
-use types::{ErrorResponse, Request, RequestOpts, Response};
+use state::REQUEST_RESPONSE_BUFFER;
+use std::collections::HashMap;
+use types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
+use utils::{get_currency_pair_price, send_adc_response};
 use verity_dp_ic::{owner, whitelist};
 
-pub mod types;
-
-thread_local! {
-    static REQUEST_RESPONSE_BUFFER: RefCell<HashMap<String, bool>> = RefCell::default();
-}
+pub mod sources;
+pub mod state;
+pub mod utils;
 
 /// use this variable to control the max number of currency pairs
 /// that can be contained in one request
@@ -24,8 +24,9 @@ fn name() -> String {
 }
 
 #[ic_cdk::init]
-async fn init() {
-    owner::init_owner()
+async fn init(verifier_canister: Option<Principal>) {
+    owner::init_owner();
+    state::set_verifier_canister(verifier_canister);
 }
 
 #[ic_cdk::update]
@@ -41,11 +42,25 @@ async fn remove_from_whitelist(principal: Principal) {
 }
 
 #[ic_cdk::update]
+async fn set_verifier_canister(verifier_canister_principal: Principal) {
+    state::set_verifier_canister(Some(verifier_canister_principal));
+}
+
+#[ic_cdk::query]
+async fn get_verifier_canister() -> Option<Principal> {
+    state::get_verifier_canister()
+}
+
+#[ic_cdk::update]
 /// requests prices from the orchestrator
 /// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
 async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
+    assert!(
+        state::get_verifier_canister().is_some(),
+        "VERIFIER_CANISTER_NOT_SET"
+    );
     let caller_principal = ic_cdk::caller();
 
     // derive the request id
@@ -59,7 +74,6 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         .to_string();
     let request_id = format!("{}_{}", time().to_string(), random_hex_byte);
 
-    println!("{request_id}");
     if !whitelist::is_whitelisted(caller_principal) {
         panic!(
             "canister with principal:{} is not allowed to call this method",
@@ -67,8 +81,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         );
     }
     // creates a price request object with an arb id
-    // attach a buffer with valid pending id's
-    // include the caller canister's id to know who to send a response to
+    // include the caller canister's id to let adc know where to send a response to
     let price_request = Request::new(request_id.clone(), caller_principal, currency_pairs, opts);
 
     // validate that this request for data contains a maximum of 10 pairs
@@ -79,6 +92,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         );
     };
     let price_request_stringified = serde_json::to_string(&price_request).unwrap();
+
     // log the price request to be picked up by the orchestrator
     println!("{}", price_request_stringified);
 
@@ -90,7 +104,11 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
 #[ic_cdk::update]
 /// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
 /// it would receive the response for a request made and forward it to the requesting canister
-async fn receive_orchestrator_response(response: Result<Response, ErrorResponse>) {
+async fn receive_orchestrator_response(response: ADCResponse, notary_pubkey: String) {
+    assert!(
+        state::get_verifier_canister().is_some(),
+        "VERIFIER_CANISTER_NOT_SET"
+    );
     // only owner(orchestrator) can call
     owner::only_owner();
 
@@ -106,12 +124,40 @@ async fn receive_orchestrator_response(response: Result<Response, ErrorResponse>
     // remove ID from buffer
     REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow_mut().remove(&id));
 
-    // call function and get response
-    let _call_result: Result<(), _> =
-        ic_cdk::call(response_owner, "receive_adc_response", (response,)).await;
+    // if we get an error response then return that
+    if response.is_err() {
+        send_adc_response(response_owner, response).unwrap();
+        return;
+    }
+
+    // otherwise get the request and process it
+    let mut response = response.unwrap();
+
+    // iterate through each of the currency pairs and then get the price consensus
+    // or errors (if any), and attach it to the object
+    // and return the response to the calling canister
+    let mut processed_pairs = vec![];
+    for mut currency_pair in response.pairs.clone() {
+        // only get the price of a particular pair if it does not have any existing errors
+        if currency_pair.error.is_none() {
+            let pair_price = get_currency_pair_price(&currency_pair, &notary_pubkey).await;
+            match pair_price {
+                Ok(price) => {
+                    currency_pair.price = Some(price);
+                }
+                Err(err) => currency_pair.error = Some(err.to_string()),
+            }
+        }
+        processed_pairs.push(currency_pair);
+    }
+
+    response.pairs = processed_pairs.clone();
+
+    send_adc_response(response_owner, Ok(response)).unwrap();
 }
 
 #[ic_cdk::query]
+/// Check if this canister is whitelisted
 async fn is_canister_whitelisted(principal: Principal) -> bool {
     owner::only_owner();
     whitelist::is_whitelisted(principal)
@@ -119,22 +165,28 @@ async fn is_canister_whitelisted(principal: Principal) -> bool {
 
 // --------------------------- upgrade hooks ------------------------- //
 #[ic_cdk::pre_upgrade]
-/// backuo
+/// backup state variables from canister
 fn pre_upgrade() {
-    let cloned_buffer = REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().clone());
+    let cloned_buffer = state::get_buffer();
+    let cloned_verifier = state::get_verifier_canister();
     let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
 
-    storage::stable_save((cloned_buffer, cloned_whitelist)).unwrap()
+    storage::stable_save((cloned_buffer, cloned_whitelist, cloned_verifier)).unwrap()
 }
 #[ic_cdk::post_upgrade]
+/// restore state variables from backup
 async fn post_upgrade() {
-    let (cached_buffer, cached_whitelist): (HashMap<String, bool>, HashMap<Principal, bool>) =
-        storage::stable_restore().unwrap();
-
-    REQUEST_RESPONSE_BUFFER.with(|store| *store.borrow_mut() = cached_buffer);
-    whitelist::WHITE_LIST.with(|store| *store.borrow_mut() = cached_whitelist);
+    let (cached_buffer, cached_whitelist, cached_verifier): (
+        HashMap<String, bool>,
+        HashMap<Principal, bool>,
+        Option<Principal>,
+    ) = storage::stable_restore().unwrap();
 
     owner::init_owner();
+    whitelist::WHITE_LIST.with(|store| *store.borrow_mut() = cached_whitelist);
+
+    state::set_buffer(cached_buffer);
+    state::set_verifier_canister(cached_verifier);
 }
 // --------------------------- upgrade hooks ------------------------- //
 
