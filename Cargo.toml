@@ -1,5 +1,5 @@
 [workspace]
-members = ["orchestrator", "processor/ic", "example_caller", "types"]
+members = ["orchestrator", "processor/ic", "types"]
 resolver = "2"
 
 [workspace.dependencies]
