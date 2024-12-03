@@ -6,12 +6,15 @@ use crate::{
     },
 };
 // use anyhow::Result;
-use chrono::prelude::*;
 use poller::LogPollerState;
-use std::{result::Result::{self, Ok}, sync::Arc};
 use std::sync::atomic::{AtomicBool, Ordering};
-use utils::process_proofs;
+use std::{
+    result::Result::{self, Ok},
+    sync::Arc,
+};
+use tracing::{debug, error, info};
 use types::{ErrorResponse, Response};
+use utils::process_proofs;
 
 pub mod poller;
 pub mod sources;
@@ -25,7 +28,7 @@ pub static IS_RUNNING: AtomicBool = AtomicBool::new(false);
 
 pub type ResponseResult = Result<Response, ErrorResponse>;
 
-pub async fn handler(notary_information: Arc<NotaryInformation> ) {
+pub async fn handler(notary_information: Arc<NotaryInformation>) {
     // if program is already running then return
     if IS_RUNNING.load(Ordering::SeqCst) {
         return;
@@ -37,7 +40,7 @@ pub async fn handler(notary_information: Arc<NotaryInformation> ) {
     let fetch_logs_response = fetch_canister_logs(notary_information).await;
 
     if let Err(e) = fetch_logs_response {
-        println!("Error fetching canister logs: {}", e)
+        error!("Failed to fetch canister logs: {}", e)
     } else {
         // if theres no error then update the last timestamp
         let updated_state = LogPollerState::new(fetch_logs_response.unwrap());
@@ -49,51 +52,45 @@ pub async fn handler(notary_information: Arc<NotaryInformation> ) {
 }
 
 /// register handlers for several orchestrator programs
-pub async fn fetch_canister_logs(notary_information: Arc<NotaryInformation>) -> anyhow::Result<u64> {
+pub async fn fetch_canister_logs(
+    notary_information: Arc<NotaryInformation>,
+) -> anyhow::Result<u64> {
     let state = LogPollerState::load_state()?;
 
     let config = Config::env();
-    if config.is_dev {
-        println!(
-            "Running 'fetch_canister_logs' at {}",
-            Utc::now().to_string()
-        );
-    }
+    let start_timestamp =
+        chrono::DateTime::from_timestamp(i64::try_from(state.start_timestamp)?, 0).unwrap();
+    debug!("Fetching canister logs since {:?}", start_timestamp);
 
     // get all the logs which meet this criteria
     let latest_valid_logs: Vec<EventLog> =
         get_canister_logs(&config, Some(state.start_timestamp)).await?;
+    debug!("Fetched {} valid logs", latest_valid_logs.len());
+
     if latest_valid_logs.len() == 0 {
         return Ok(get_utc_timestamp());
     };
-    println!(
-        "\nProcessing {} valid logs at {}",
-        latest_valid_logs.len(),
-        Utc::now().to_string()
-    );
 
     // generate proofs using redstone api and pyth api
     let responses = fetch_pricing_data(latest_valid_logs.clone()).await;
 
-    println!(
-        "Processed {} valid logs at {}",
-        responses.len(),
-        Utc::now().to_string()
-    );
+    info!("Processed {} valid logs", responses.len(),);
 
     let agent = config.get_agent().await?;
     let notary_pubkey = &notary_information.public_key;
 
     // TODO: Could be wiser to batch these responses into a single IC update call
-    for response in responses {
+    for response in &responses {
+        debug!("Pushing response {:?}", response);
         agent
             .update(&config.canister, "receive_orchestrator_response")
+            // .with_arg(candid::encode_args((response,))?)
             .with_arg(candid::encode_args((response, notary_pubkey))?)
             .call_and_wait()
             .await?;
     }
+    info!("Pushed {} responses to the canister", responses.len());
 
-    println!("Responses pushed to canister\n");
     // get the latest timestamp from the logs and resume from there
     let latest_log_timestamp = latest_valid_logs.last().unwrap();
     Ok(latest_log_timestamp.timestamp)
@@ -103,7 +100,7 @@ pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult
     let mut responses: Vec<ResponseResult> = vec![];
 
     for event in event_logs {
-        println!("processing Log-{}: {:?}", event.index, event.logs);
+        debug!("Processing log #{}: {:?}", event.index, event.logs);
 
         let request = event.logs.clone();
         let request_options = request.clone().opts;
@@ -114,7 +111,7 @@ pub async fn fetch_pricing_data(event_logs: Vec<EventLog>) -> Vec<ResponseResult
             let process_status = process_proofs(&mut price_response).await;
             match process_status {
                 Err(msg) => {
-                    println!("Failed to process pricing data:{:?}", msg);
+                    error!("Failed to process pricing data:{:?}", msg);
                     // on error we push an error response to the canister
                     responses.push(Err(ErrorResponse::new(
                         request.id,

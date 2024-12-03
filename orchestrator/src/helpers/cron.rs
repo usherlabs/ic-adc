@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use tokio::time::sleep;
 use tokio_cron_scheduler::{Job, JobScheduler, JobSchedulerError};
+use tracing::info;
 
 #[derive(Clone)]
 pub struct CronJob {
@@ -25,7 +26,7 @@ impl CronJob {
         // add a shutdown hook
         self.scheduler.set_shutdown_handler(Box::new(|| {
             Box::pin(async move {
-                println!("shutting down scheduler");
+                info!("Shutting down scheduler");
             })
         }));
 
