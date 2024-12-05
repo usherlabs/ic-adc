@@ -3,5 +3,5 @@ members = ["orchestrator", "processor/ic", "types"]
 resolver = "2"
 
 [workspace.dependencies]
-verity-dp-ic = { path = "./ccamp/ic/libraries" }
-verity-client = { path = "./ccamp/rs/verity-client" }
+verity-client = { git = "https://github.com/usherlabs/verity-dp.git", branch = "feature/better-workspaces" }
+verity-dp-ic = { git = "https://github.com/usherlabs/verity-dp.git", branch = "feature/better-workspaces" }
