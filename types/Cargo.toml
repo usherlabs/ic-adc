@@ -8,6 +8,6 @@ license.workspace = true
 edition.workspace = true
 
 [dependencies]
-anyhow = "1.0.93"
-candid = "0.10.10"
-serde = "1.0.215"
+anyhow = { workspace = true }
+candid = { workspace = true }
+serde = { workspace = true }
