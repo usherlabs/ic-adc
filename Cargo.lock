@@ -15,7 +15,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "types",
- "verity_dp_ic",
+ "verity-dp-ic",
 ]
 
 [[package]]
@@ -2121,7 +2121,7 @@ dependencies = [
  "types",
  "uuid",
  "verity-client",
- "verity_dp_ic",
+ "verity-dp-ic",
 ]
 
 [[package]]
@@ -3663,11 +3663,13 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-util",
+ "tracing",
+ "tracing-subscriber",
  "uuid",
 ]
 
 [[package]]
-name = "verity_dp_ic"
+name = "verity-dp-ic"
 version = "0.2.0"
 dependencies = [
  "anyhow",

@@ -1,6 +1,6 @@
-use chrono::Utc;
 use dotenv::dotenv;
 use tokio_cron_scheduler::JobSchedulerError;
+use tracing::info;
 use triggers::cron::load_cron;
 
 pub mod config;
@@ -10,7 +10,9 @@ pub mod triggers;
 
 #[tokio::main]
 async fn main() -> Result<(), JobSchedulerError> {
-    println!("Orchestrator Started at {}", Utc::now().to_string());
+    tracing_subscriber::fmt::init();
+
+    info!("Orchestrator Started");
 
     // load env vars
     dotenv().ok();
