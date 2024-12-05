@@ -2,6 +2,15 @@
 members = ["orchestrator", "processor/ic", "types"]
 resolver = "2"
 
+[workspace.package]
+version = "0.1.0"
+authors = ["Usher Labs <labs@usher.so>"]
+repository = "https://github.com/usherlabs/ic-adc"
+homepage = "https://www.usher.so/"
+documentation = "https://www.usher.so/"
+edition = "2021"
+license = "LGPL-3.0"
+
 [workspace.dependencies]
 verity-client = { git = "https://github.com/usherlabs/verity-dp.git", branch = "feature/better-workspaces" }
 verity-dp-ic = { git = "https://github.com/usherlabs/verity-dp.git", branch = "feature/better-workspaces" }
