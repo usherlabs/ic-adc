@@ -1,5 +1,11 @@
 [workspace]
-members = ["orchestrator", "processor/ic", "types"]
+members = [
+  "orchestrator",
+  "processor/ic",
+  "types",
+  "example_caller/src/adc_caller",
+  "example_caller/src/adc_pulse",
+]
 resolver = "2"
 
 [workspace.package]
@@ -15,11 +21,13 @@ license = "LGPL-3.0"
 anyhow = "1.0.94"
 candid = "0.10.10"
 chrono = "0.4.38"
+clap = "4.5.22"
 dotenv = "0.15.0"
 hex = "0.4.3"
 ic-agent = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
 ic-cdk = "0.17.0"
 ic-utils = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
+rand = "0.8.5"
 reqwest = "0.12.9"
 serde = "1.0.215"
 serde_json = "1.0.133"
