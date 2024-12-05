@@ -31,5 +31,5 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 types = { path = "../types" }
 uuid = "1.10.0"
-verity_dp_ic = { workspace = true }
+verity-dp-ic = { workspace = true }
 verity-client = { workspace = true }
