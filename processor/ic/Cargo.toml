@@ -1,21 +1,20 @@
 [package]
 name = "adc"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+authors.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+license.workspace = true
+edition.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-candid = "0.10"
-ic-cdk = "0.16"
-ic-cdk-timers = "0.10"
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
-hex = "0.4.3"
+anyhow = { workspace = true }
+candid = { workspace = true }
+hex = { workspace = true }
+ic-cdk = { workspace = true }
+serde_json = { workspace = true }
+types = { workspace = true }
 verity-dp-ic = { workspace = true }
-anyhow = "1.0.93"
-types = { path = "../../types" }
