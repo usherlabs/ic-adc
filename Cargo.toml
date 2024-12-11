@@ -1,7 +1,7 @@
 [workspace]
-members = ["orchestrator", "processor/ic", "example_caller", "types"]
+members = ["orchestrator", "processor/ic", "types"]
 resolver = "2"
 
 [workspace.dependencies]
-verity_dp_ic = { version = "*" }
-verity-client = { git = "git@github.com:usherlabs/verity-dp.git" }
+verity_dp_ic = { version = "0.1.12" }
+verity-client = { version = "0.2"}

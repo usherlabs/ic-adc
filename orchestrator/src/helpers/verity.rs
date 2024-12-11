@@ -10,7 +10,6 @@ pub fn get_verity_client() -> VerityClient {
 
     let verity_config = VerityClientConfig {
         prover_url: config.prover_url,
-        prover_zmq: config.prover_zmq_url,
     };
 
     VerityClient::new(verity_config)
