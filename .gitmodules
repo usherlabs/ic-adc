@@ -1,3 +1,0 @@
-[submodule "verity_dp"]
-	path = verity_dp
-	url = git@github.com:usherlabs/verity-dp.git
