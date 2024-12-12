@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use anyhow::Result;
 use candid::{CandidType, Principal};
@@ -6,10 +6,23 @@ use serde::{Deserialize, Serialize};
 
 pub type ADCResponse = Result<Response, ErrorResponse>;
 
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
+#[derive(Clone, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub enum ProofTypes {
     Pyth(String),
     Redstone(String),
+}
+
+impl Debug for ProofTypes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn format(proof: &String) -> String {
+            format!("String[{}]", proof.len()).to_string()
+        }
+
+        match self {
+            Self::Pyth(arg0) => f.debug_tuple("Pyth").field(&format(arg0)).finish(),
+            Self::Redstone(arg0) => f.debug_tuple("Redstone").field(&format(arg0)).finish(),
+        }
+    }
 }
 
 impl ProofTypes {
@@ -23,7 +36,7 @@ impl ProofTypes {
 
 /// a struct which would be used to
 /// communicate data requested by the ADC
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Request {
     /// the id of this request
     pub id: String,
@@ -35,7 +48,18 @@ pub struct Request {
     pub opts: RequestOpts,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+impl Debug for Request {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Request")
+            .field("id", &self.id)
+            .field("owner", &self.owner.to_text())
+            .field("pairs", &self.pairs)
+            .field("opts", &self.opts)
+            .finish()
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, CandidType)]
 pub struct Response {
     /// the id of this request
     pub id: String,
@@ -47,6 +71,17 @@ pub struct Response {
     /// this property indicates if the metadata information about this request has been succesfully fetched
     /// and is ready to be sent to the canister
     pub processed: bool,
+}
+
+impl Debug for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Response")
+            .field("id", &self.id)
+            .field("owner", &self.owner.to_text())
+            .field("pairs", &self.pairs)
+            .field("processed", &self.processed)
+            .finish()
+    }
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, CandidType)]

@@ -6,6 +6,10 @@ The unique Chain-key architecture of the IC allows for new ways of combining off
 
 The ADC serves as an example of using the Internet Computer (IC) as a decentralised co-processor.
 
+## Explorer
+
+To explore live TLS proofs and metrics sourced for the IC-ADC, visit the [IC-ADC Explorer](https://go.usher.so/ic-adc).
+
 ## Data Supported & Roadmap
 
 - [x] Cryptocurrency Asset Prices

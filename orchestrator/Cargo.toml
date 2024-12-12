@@ -1,35 +1,29 @@
 [package]
 name = "orchestrator"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+license.workspace = true
+edition.workspace = true
 
 [dependencies]
-tokio = { version = "1.39.2", features = ["full"] }
-tokio-cron-scheduler = "0.10.2"
-uuid = "1.10.0"
-anyhow = "1.0.86"
-dotenv = "0.15.0"
-serde = "1.0"
-serde_json = "1.0"
-serde_yaml = "0.9"
-candid = "0.10.4"
-candid_parser = "0.1.4"
-ic-agent = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
-ic-cdk = "0.13.1"
-ic-identity-hsm = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
-ic-utils = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d5368180f03a75df80f475d6e2caf21a" }
-thiserror = "1.0.63"
-time = { version = "0.3.9", features = [
-    "serde",
-    "macros",
-    "serde-human-readable",
-] }
-hex = { version = "0.4.3", features = ["serde"] }
-chrono = "0.4"
-reqwest = "0.12.5"
-eyre = "0.6"
-tracing = "0.1"
-tracing-subscriber = "0.3"
+anyhow = { workspace = true }
+candid = { workspace = true }
+chrono = { workspace = true }
+dotenv = { workspace = true }
+hex = { workspace = true, features = ["serde"] }
+ic-agent = { workspace = true }
+ic-utils = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tokio-cron-scheduler = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+types = { workspace = true }
 verity-client = { workspace = true }
-verity_dp_ic = { workspace = true }
-types = { path = "../types" }
+verity-ic = { workspace = true }
