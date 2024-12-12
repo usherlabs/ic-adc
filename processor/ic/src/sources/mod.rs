@@ -1,7 +1,7 @@
 use pyth::Pyth;
 use redstone::Redstone;
 use types::ProofTypes;
-use verity_dp_ic::verify::types::ProofResponse;
+use verity_ic::verify::types::ProofResponse;
 
 use crate::state;
 

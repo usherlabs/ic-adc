@@ -1,5 +1,4 @@
 [workspace]
-<<<<<<< HEAD
 members = [
   "orchestrator",
   "processor/ic",
@@ -7,9 +6,6 @@ members = [
   "example_caller/src/adc_caller",
   "example_caller/src/adc_pulse",
 ]
-=======
-members = ["orchestrator", "processor/ic", "types"]
->>>>>>> a6527e1 (replace git dependency with crates dependency)
 resolver = "2"
 
 [workspace.package]
@@ -42,5 +38,5 @@ tokio-cron-scheduler = "0.13.0"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
 types = { path = "./types" }
-verity_dp_ic = { version = "0.1.12" }
+verity-ic = { version = "0.2" }
 verity-client = { version = "0.2"}
