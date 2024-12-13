@@ -2,8 +2,8 @@
 # initial buider image to compile the orchestrator into an executable binary
 FROM rust:bookworm AS build
 WORKDIR /verityprogram
-COPY ./orchestrator ./
-RUN cargo build --release
+COPY ./ ./
+RUN cargo build -p orchestrator --release
 
 
 # our final base image
@@ -20,7 +20,7 @@ WORKDIR /verityprogram
 # copy the build artifact and config from the build stage
 COPY --from=build /verityprogram/target/release/orchestrator .
 # !NOTE: the env variables from the docker compose file will override the .env file if both are provided
-COPY --from=build /verityprogram/identity.pem .
+COPY --from=build /verityprogram/orchestrator/identity.pem .
 # set the startup command to run your binary
 
 CMD ["./orchestrator"]
