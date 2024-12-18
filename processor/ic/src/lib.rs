@@ -7,7 +7,7 @@ use state::REQUEST_RESPONSE_BUFFER;
 use std::collections::HashMap;
 use types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
 use utils::{get_currency_pair_price, send_adc_response};
-use verity_dp_ic::{owner, whitelist};
+use verity_ic::{owner, whitelist};
 
 pub mod sources;
 pub mod state;

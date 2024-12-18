@@ -17,4 +17,4 @@ hex = { workspace = true }
 ic-cdk = { workspace = true }
 serde_json = { workspace = true }
 types = { workspace = true }
-verity-dp-ic = { workspace = true }
+verity-ic = { workspace = true }
