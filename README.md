@@ -76,3 +76,11 @@ fn receive_adc_response(response: Result<ADCResponse, ADCErrorResponse>) {
 ```
 
 To reiterate, a working example of a Calling Canister with the relevant schema can be found in [this example](./example_caller).
+
+## Caveats
+
+### `identity.pem`
+
+If deployed locally, then the IC-ADC Orchestrator will use the local `identity.pem` - see `orchestrator/.env.example`
+
+However, the IC-ADC deployed by Usher Labs requires whitelisting by Usher Labs, authenticated by Usher Labs' `identity.pem` 
