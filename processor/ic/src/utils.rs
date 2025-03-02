@@ -3,7 +3,7 @@ use candid::Principal;
 use ic_cdk::api::call::{msg_cycles_accept128, RejectionCode};
 use types::{ADCResponse, ADCResponseV2, CurrencyPair, ProofTypes, Token};
 use ic_cdk::api::time;
-use verity_ic::{remittance::state, verify::types::ProofResponse};
+use verity_ic::verify::types::ProofResponse;
 
 // send a response to the canister who requested pricing data
 pub fn send_adc_response(
