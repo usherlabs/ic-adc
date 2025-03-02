@@ -7,9 +7,9 @@ use ic_utils::call::SyncCall;
 use ic_utils::interfaces::management_canister::{FetchCanisterLogsResponse, MgmtMethod};
 use ic_utils::interfaces::ManagementCanister;
 use time::OffsetDateTime;
-use types::Request;
+use types::{ProxyRequest, Request};
 
-use super::types::DfxResult;
+use super::types::{DfxResult, EventUrlLog};
 use super::types::EventLog;
 use crate::config::Config;
 
@@ -46,7 +46,7 @@ pub async fn create_agent(config: &Config) -> anyhow::Result<Agent> {
 pub async fn get_canister_logs(
     config: &Config,
     start_timestamp: Option<u64>,
-) -> anyhow::Result<Vec<EventLog>> {
+) -> anyhow::Result<(Vec<EventLog>,Vec<EventUrlLog>)> {
     let canister_id = config.canister;
     #[derive(CandidType)]
     struct In {
@@ -63,24 +63,32 @@ pub async fn get_canister_logs(
     )
     .await?;
 
-    let formatted_logs: Vec<EventLog> = format_canister_logs(out);
+    let (formatted_logs,formatted_url_logs) = format_canister_logs(out);
+
     if let Some(timestamp) = start_timestamp {
         // filter the logs by timestamp
 
-        Ok(formatted_logs
+        Ok((formatted_logs
             .clone()
             .iter()
             .filter(|event| event.timestamp > timestamp)
             .cloned()
-            .collect())
+            .collect(),
+            formatted_url_logs
+            .clone()
+            .iter()
+            .filter(|event| event.timestamp > timestamp)
+            .cloned()
+            .collect()
+        ))
     } else {
-        Ok(formatted_logs.clone())
+        Ok((formatted_logs.clone(),formatted_url_logs.clone()))
     }
 }
 
 /// Parse the valid event logs into a well formatted `EventLog`
-fn format_canister_logs(logs: FetchCanisterLogsResponse) -> Vec<EventLog> {
-    let mut valid_logs = vec![];
+fn format_canister_logs(logs: FetchCanisterLogsResponse) -> (Vec<EventLog>, Vec<EventUrlLog>) {
+    let mut valid_logs = (vec![],vec![]);
     logs.canister_log_records.into_iter().for_each(|r| {
         let time = OffsetDateTime::from_unix_timestamp_nanos(r.timestamp_nanos as i128)
             .expect("Invalid canister log record timestamp");
@@ -98,7 +106,17 @@ fn format_canister_logs(logs: FetchCanisterLogsResponse) -> Vec<EventLog> {
         let parsed_message_result: Result<Request, serde_json::Error> =
             serde_json::from_str(&message);
         if parsed_message_result.is_ok() {
-            valid_logs.push(EventLog::new(
+            valid_logs.0.push(EventLog::new(
+                r.idx,
+                time.unix_timestamp() as u64,
+                parsed_message_result.unwrap(),
+            ))
+        }
+
+        let parsed_message_result: Result<ProxyRequest, serde_json::Error> =
+        serde_json::from_str(&message);
+        if parsed_message_result.is_ok() {
+            valid_logs.1.push(EventUrlLog::new(
                 r.idx,
                 time.unix_timestamp() as u64,
                 parsed_message_result.unwrap(),

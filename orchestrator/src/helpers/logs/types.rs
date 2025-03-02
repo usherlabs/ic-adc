@@ -1,4 +1,4 @@
-use types::Request;
+use types::{ProxyRequest, Request};
 
 
 /// The type to represent DFX results.
@@ -13,6 +13,23 @@ pub struct EventLog {
 
 impl EventLog {
     pub fn new(index: u64, timestamp: u64, logs: Request) -> Self {
+        Self {
+            index,
+            timestamp,
+            logs,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct EventUrlLog {
+    pub index: u64,
+    pub timestamp: u64,
+    pub logs: ProxyRequest,
+}
+
+impl EventUrlLog {
+    pub fn new(index: u64, timestamp: u64, logs:ProxyRequest) -> Self {
         Self {
             index,
             timestamp,

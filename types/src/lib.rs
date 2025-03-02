@@ -5,6 +5,8 @@ use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
 pub type ADCResponse = Result<Response, ErrorResponse>;
+pub type ADCResponseV2 = Result<ResponseV2, ErrorResponse>;
+
 
 #[derive(Clone, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub enum ProofTypes {
@@ -48,6 +50,28 @@ pub struct Request {
     pub opts: RequestOpts,
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+pub struct ProxyRequest{
+    pub id: String,
+	pub target_url: String,
+    pub method:   String,
+	pub redacted:  String,
+	pub headers:  Vec<Headers>,
+	pub body:   String,
+    pub owner: Principal,
+}
+impl Debug for ProxyRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ProxyRequest")
+            .field("id", &self.id)
+            .field("target_url", &self.target_url)
+            .field("redacted", &self.redacted)
+            .field("headers", &self.headers)
+            .field("body", &self.body)
+            .field("owner", &self.owner)
+            .finish()
+    }
+}
 impl Debug for Request {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Request")
@@ -72,6 +96,21 @@ pub struct Response {
     /// and is ready to be sent to the canister
     pub processed: bool,
 }
+
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+pub struct ResponseV2 {
+    /// the id of this request
+    pub id: String,
+    /// the principal of the canister which originated this request
+    pub owner: Principal,
+    pub proof_requests: Vec<String>,
+    pub contents: Vec<String>,
+    /// when we `convert` a request to a response, the price/proof information is not fetched yet
+    /// this property indicates if the metadata information about this request has been succesfully fetched
+    /// and is ready to be sent to the canister
+    pub processed: bool,
+}
+
 
 impl Debug for Response {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -142,6 +181,35 @@ impl Request {
     }
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug, CandidType)]
+pub struct Headers {
+    pub key: String,
+    pub value: String,
+}
+
+
+impl ProxyRequest {
+    pub fn new(
+        id: String,
+        target_url: String,
+        method: String,
+        redacted:  String,
+        headers:  Vec<Headers>,
+        body:   String,
+        owner: Principal
+    ) -> Self {
+        Self {
+            id,
+            target_url,
+            method,
+            redacted,
+            headers,
+            body,
+            owner,
+        }
+    }
+}
+
 impl ErrorResponse {
     pub fn new(id: String, owner: Principal, message: String) -> Self {
         Self { id, owner, message }
@@ -160,6 +228,19 @@ impl From<Request> for Response {
             id: request.id,
             owner: request.owner,
             pairs,
+            processed: false,
+        }
+    }
+}
+
+impl From<ProxyRequest> for ResponseV2 {
+    fn from(request: ProxyRequest) -> Self {
+
+        Self {
+            id: request.id,
+            owner: request.owner,
+            proof_requests: vec![],
+            contents:vec![],
             processed: false,
         }
     }

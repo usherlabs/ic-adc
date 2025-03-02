@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     config::Config,
-    handlers::price::{self},
+    handlers::batch_handler,
     helpers::cron::CronJob,
 };
 use tokio_cron_scheduler::Job;
@@ -17,7 +17,7 @@ pub async fn load_cron() -> anyhow::Result<CronJob> {
     cronjob
         .add_job(Job::new_async(&config.job_schedule[..], move |_, _| {
             let notary_information = Arc::clone(&notary_information);
-            Box::pin(async { price::handler(notary_information).await })
+            Box::pin(async { batch_handler(notary_information).await })
         })?)
         .await?;
     // add jobs to the cronjob

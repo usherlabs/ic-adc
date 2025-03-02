@@ -1,7 +1,7 @@
 use crate::{
     config::{Config, NotaryInformation},
     helpers::{
-        logs::{ic::get_canister_logs, types::EventLog},
+        logs::types::EventLog,
         utils::get_utc_timestamp,
     },
 };
@@ -28,7 +28,10 @@ pub static IS_RUNNING: AtomicBool = AtomicBool::new(false);
 
 pub type ResponseResult = Result<Response, ErrorResponse>;
 
-pub async fn handler(notary_information: Arc<NotaryInformation>) {
+pub async fn handler(
+    notary_information: Arc<NotaryInformation>,
+    latest_valid_logs: Vec<EventLog>
+) {
     // if program is already running then return
     if IS_RUNNING.load(Ordering::SeqCst) {
         return;
@@ -37,7 +40,7 @@ pub async fn handler(notary_information: Arc<NotaryInformation>) {
     // set the running state to true to prevent further instances until this is complete
     IS_RUNNING.store(true, Ordering::SeqCst);
 
-    let fetch_logs_response = fetch_canister_logs(notary_information).await;
+    let fetch_logs_response = process_canister_logs(notary_information,latest_valid_logs).await;
 
     if let Err(e) = fetch_logs_response {
         error!("Failed to fetch canister logs: {}", e)
@@ -52,8 +55,9 @@ pub async fn handler(notary_information: Arc<NotaryInformation>) {
 }
 
 /// register handlers for several orchestrator programs
-pub async fn fetch_canister_logs(
+pub async fn process_canister_logs(
     notary_information: Arc<NotaryInformation>,
+    latest_valid_logs: Vec<EventLog>
 ) -> anyhow::Result<u64> {
     let state = LogPollerState::load_state()?;
 
@@ -62,9 +66,6 @@ pub async fn fetch_canister_logs(
         chrono::DateTime::from_timestamp(i64::try_from(state.start_timestamp)?, 0).unwrap();
     debug!("Fetching canister logs since {:?}", start_timestamp);
 
-    // get all the logs which meet this criteria
-    let latest_valid_logs: Vec<EventLog> =
-        get_canister_logs(&config, Some(state.start_timestamp)).await?;
     debug!("Fetched {} valid logs", latest_valid_logs.len());
 
     if latest_valid_logs.len() == 0 {

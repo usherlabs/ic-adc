@@ -1,12 +1,19 @@
 use candid::Principal;
 use core::panic;
-use hex;
-use ic_cdk::api::time;
-use ic_cdk::{println, storage};
+use ic_cdk::{
+    api::call::msg_cycles_accept128,
+    println, storage,
+};
+use sources::request_proof_verification;
 use state::REQUEST_RESPONSE_BUFFER;
 use std::collections::HashMap;
-use types::{ADCResponse, ErrorResponse, Request, RequestOpts, Response};
-use utils::{get_currency_pair_price, send_adc_response};
+use types::{
+    ADCResponse, ADCResponseV2, ErrorResponse, Headers, ProxyRequest, Request, RequestOpts,
+    Response, ResponseV2,
+};
+use utils::{
+    check_gas, generate_request_url, get_currency_pair_price, send_adc_response, send_adc_response_v2
+};
 use verity_ic::{owner, whitelist};
 
 pub mod sources;
@@ -27,6 +34,7 @@ fn name() -> String {
 async fn init(verifier_canister: Option<Principal>) {
     owner::init_owner();
     state::set_verifier_canister(verifier_canister);
+    state::set_transaction_fee(1_000_000_000_000);
 }
 
 #[ic_cdk::update]
@@ -46,9 +54,21 @@ async fn set_verifier_canister(verifier_canister_principal: Principal) {
     state::set_verifier_canister(Some(verifier_canister_principal));
 }
 
+#[ic_cdk::update]
+async fn set_transaction_fee(transaction_fee: u128) {
+    owner::only_owner();
+    state::set_transaction_fee(transaction_fee);
+}
+
 #[ic_cdk::query]
 async fn get_verifier_canister() -> Option<Principal> {
     state::get_verifier_canister()
+}
+
+
+#[ic_cdk::query]
+async fn get_transaction_fee() -> u128 {
+    state::get_transaction_fee()
 }
 
 #[ic_cdk::update]
@@ -64,22 +84,16 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     let caller_principal = ic_cdk::caller();
 
     // derive the request id
-    let (random_bytes,): (Vec<u8>,) =
-        ic_cdk::call(Principal::management_canister(), "raw_rand", ())
-            .await
-            .unwrap();
-    let random_hex_byte: String = hex::encode(random_bytes)
-        .get(0..5)
-        .unwrap_or_default()
-        .to_string();
-    let request_id = format!("{}_{}", time().to_string(), random_hex_byte);
+    let request_id = generate_request_url().await;
 
-    if !whitelist::is_whitelisted(caller_principal) {
-        panic!(
-            "canister with principal:{} is not allowed to call this method",
-            caller_principal
-        );
-    }
+    check_gas();
+
+    // if !whitelist::is_whitelisted(caller_principal) {
+    //     panic!(
+    //         "canister with principal:{} is not allowed to call this method",
+    //         caller_principal
+    //     );
+    // }
     // creates a price request object with an arb id
     // include the caller canister's id to let adc know where to send a response to
     let price_request = Request::new(request_id.clone(), caller_principal, currency_pairs, opts);
@@ -92,6 +106,38 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
         );
     };
     let price_request_stringified = serde_json::to_string(&price_request).unwrap();
+
+    // log the price request to be picked up by the orchestrator
+    println!("{}", price_request_stringified);
+
+    REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow_mut().insert(request_id.clone(), true));
+
+    return request_id;
+}
+
+#[ic_cdk::update]
+async fn request_data_url(
+    target_url: String,
+    method: String,
+    redacted: String,
+    headers: Vec<Headers>,
+    body: String,
+) -> String {
+    // derive the request id
+    let request_id = generate_request_url().await;
+    check_gas();
+
+    let proxy_request = ProxyRequest::new(
+        request_id.clone(),
+        target_url,
+        method,
+        redacted,
+        headers,
+        body,
+        ic_cdk::caller(),
+    );
+
+    let price_request_stringified = serde_json::to_string(&proxy_request).unwrap();
 
     // log the price request to be picked up by the orchestrator
     println!("{}", price_request_stringified);
@@ -154,6 +200,54 @@ async fn receive_orchestrator_response(response: ADCResponse, notary_pubkey: Str
     response.pairs = processed_pairs.clone();
 
     send_adc_response(response_owner, Ok(response)).unwrap();
+}
+
+#[ic_cdk::update]
+/// this function is going to be called by the orchestrator which would be authenticated with the 'owner' keys
+/// it would receive the response for a request made and forward it to the requesting canister
+async fn receive_orchestrator_data(response: ADCResponseV2, notary_pubkey: String) {
+    assert!(
+        state::get_verifier_canister().is_some(),
+        "VERIFIER_CANISTER_NOT_SET"
+    );
+    // only owner(orchestrator) can call
+    owner::only_owner();
+
+    let (response_owner, id) = match response.clone() {
+        Ok(ResponseV2 { owner, id, .. }) => (owner, id),
+        Err(ErrorResponse { owner, id, .. }) => (owner, id),
+    };
+
+    // validate that id is present in buffer
+    if !REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow().contains_key(&id)) {
+        panic!("invalid response")
+    }
+    // remove ID from buffer
+    REQUEST_RESPONSE_BUFFER.with(|rc| rc.borrow_mut().remove(&id));
+
+    // if we get an error response then return that
+    if response.is_err() {
+        send_adc_response_v2(response_owner, response).unwrap();
+        return;
+    }
+
+    // otherwise get the request and process it
+    let mut response = response.unwrap();
+
+    // iterate through each of the currency pairs and then get the price consensus
+    // or errors (if any), and attach it to the object
+    // and return the response to the calling canister
+
+    let contents: Vec<String> =
+        request_proof_verification(&response.proof_requests, &notary_pubkey)
+            .await
+            .iter()
+            .map(|proof| proof.get_content().to_string())
+            .collect();
+
+    response.contents = contents;
+
+    send_adc_response_v2(response_owner, Ok(response)).unwrap();
 }
 
 #[ic_cdk::query]

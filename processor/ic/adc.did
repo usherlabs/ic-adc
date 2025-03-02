@@ -28,8 +28,28 @@ type PriceOpts = record {
   price : bool;
 };
 
+type Headers = record {
+  key : text;
+  value : text;
+};
+
+
+type ResponseV2 = record {
+  id : text;
+  owner : principal;
+  proof_requests : vec text;
+  contents : vec text;
+  processed : bool;
+};
+
+type ADCResponseV2 = variant {
+  ok : ResponseV2;
+  err : ErrorResponse;
+};
+
 service : {
   "name" : () -> (text) query;
+  
   // whitelist operations
   "add_to_whitelist" : (canister_principal : principal) -> ();
   "remove_from_whitelist" : (canister_principal : principal) -> ();
@@ -42,4 +62,10 @@ service : {
   // state variables getter and setter
   "get_verifier_canister" : () -> (opt principal) query;
   "set_verifier_canister" : (manager_verifier_canister : principal) -> ();
+
+  // request data from URL
+  "request_data_url" : (target_url : text, method: text, redacted : text, headers : vec Headers, body : text) -> (text);
+
+  // receive orchestrator data
+  "receive_orchestrator_data" : (response : ADCResponseV2, notary_pubkey : text) -> ();
 };
