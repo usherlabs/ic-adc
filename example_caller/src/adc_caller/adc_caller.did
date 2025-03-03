@@ -34,9 +34,24 @@ type ResponseResult = variant {
   err : ErrorResponse;
 };
 
+type ResponseV2 = record {
+  id: text;
+  owner: principal;
+  proof_requests: vec text;
+  contents: vec text;
+  processed: bool;
+};
+
+type ResponseResultV2 = variant {
+  ok: ResponseV2;
+  err: ErrorResponse;
+};
+
+
 service : {
   "set_transaction_fee": (nat) -> ();
   "get_transaction_fee": () -> (nat);
   "submit_adc_request" : (text, nat) -> (text);
   "receive_adc_response" : (ResponseResult) -> ();
+  "receive_adc_response_v2": (ResponseResultV2) -> ();
 };
