@@ -7,7 +7,7 @@ use crate::{
         verity::get_verity_client,
     },
 };
-use reqwest::{header::{HeaderMap, HeaderName, HeaderValue}};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use std::{
     result::Result::{self, Ok},
     sync::Arc,

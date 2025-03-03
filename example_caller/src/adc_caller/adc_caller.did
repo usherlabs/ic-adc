@@ -35,6 +35,8 @@ type ResponseResult = variant {
 };
 
 service : {
-  "submit_adc_request" : (text) -> (text);
+  "set_transaction_fee": (nat) -> ();
+  "get_transaction_fee": () -> (nat);
+  "submit_adc_request" : (text, nat) -> (text);
   "receive_adc_response" : (ResponseResult) -> ();
 };

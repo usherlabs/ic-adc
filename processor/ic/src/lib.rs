@@ -246,7 +246,6 @@ async fn receive_orchestrator_data(response: ADCResponseV2, notary_pubkey: Strin
             .collect();
 
     response.contents = contents;
-
     send_adc_response_v2(response_owner, Ok(response)).unwrap();
 }
 
