@@ -49,6 +49,8 @@ type ADCResponseV2 = variant {
 
 service : {
   "name" : () -> (text) query;
+  "set_transaction_fee": (nat) -> ();
+  "get_transaction_fee": () -> (nat);
   
   // whitelist operations
   "add_to_whitelist" : (canister_principal : principal) -> ();

@@ -49,9 +49,11 @@ type ResponseResultV2 = variant {
 
 
 service : {
+  "set_adc_address": (principal) -> ();
+  "get_adc_address": () -> (opt principal);
   "set_transaction_fee": (nat) -> ();
   "get_transaction_fee": () -> (nat);
-  "submit_adc_request" : (text, nat) -> (text);
+  "submit_adc_request" : (text) -> (text);
   "receive_adc_response" : (ResponseResult) -> ();
   "receive_adc_response_v2": (ResponseResultV2) -> ();
 };

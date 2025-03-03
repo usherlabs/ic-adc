@@ -1,7 +1,6 @@
 use candid::Principal;
 use core::panic;
 use ic_cdk::{
-    api::call::msg_cycles_accept128,
     println, storage,
 };
 use sources::request_proof_verification;
@@ -34,7 +33,7 @@ fn name() -> String {
 async fn init(verifier_canister: Option<Principal>) {
     owner::init_owner();
     state::set_verifier_canister(verifier_canister);
-    state::set_transaction_fee(1_000_000_000_000);
+    state::set_transaction_fee(10_000_000_000);
 }
 
 #[ic_cdk::update]
@@ -86,7 +85,7 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     // derive the request id
     let request_id = generate_request_url().await;
 
-    check_gas();
+    check_gas().await;
 
     // if !whitelist::is_whitelisted(caller_principal) {
     //     panic!(
@@ -125,7 +124,7 @@ async fn request_data_url(
 ) -> String {
     // derive the request id
     let request_id = generate_request_url().await;
-    check_gas();
+    check_gas().await;
 
     let proxy_request = ProxyRequest::new(
         request_id.clone(),
@@ -263,16 +262,19 @@ fn pre_upgrade() {
     let cloned_buffer = state::get_buffer();
     let cloned_verifier = state::get_verifier_canister();
     let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
+    let cloned_fee = state::get_transaction_fee();
 
-    storage::stable_save((cloned_buffer, cloned_whitelist, cloned_verifier)).unwrap()
+
+    storage::stable_save((cloned_buffer, cloned_whitelist, cloned_verifier, cloned_fee)).unwrap()
 }
 #[ic_cdk::post_upgrade]
 /// restore state variables from backup
 async fn post_upgrade() {
-    let (cached_buffer, cached_whitelist, cached_verifier): (
+    let (cached_buffer, cached_whitelist, cached_verifier,cached_fee): (
         HashMap<String, bool>,
         HashMap<Principal, bool>,
         Option<Principal>,
+        u128
     ) = storage::stable_restore().unwrap();
 
     owner::init_owner();
@@ -280,6 +282,7 @@ async fn post_upgrade() {
 
     state::set_buffer(cached_buffer);
     state::set_verifier_canister(cached_verifier);
+    state::set_transaction_fee(cached_fee);
 }
 // --------------------------- upgrade hooks ------------------------- //
 

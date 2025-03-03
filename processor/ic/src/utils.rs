@@ -18,7 +18,7 @@ pub fn send_adc_response_v2(
     recipient: Principal,
     adc_response: ADCResponseV2,
 )-> Result<(), RejectionCode> {
-    let canister_response = ic_cdk::notify(recipient, "receive_adc_response", (adc_response,));
+    let canister_response = ic_cdk::notify(recipient, "receive_adc_response_v2", (adc_response,));
     return canister_response;
 }
 
