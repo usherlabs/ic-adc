@@ -1,19 +1,66 @@
-# `processor_caller`
+# Benchmarking Setup
 
-Welcome to your new `processor_caller` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters and a notary server are up and running.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Notary Server
 
-To learn more before you start working with `processor_caller`, see the following documentation available online:
+- **Default URL:**  
+  Your local verity notary will be used by default at `http://localhost:8080`.  
+- **Custom URL:**  
+  Change this by setting the environment variable:  
+  ```bash
+  export NOTARY_URL="https://your-notary-url"
+  ```
+
+## Required Canisters
+
+The following canisters must be deployed in order:
+
+1. **Managed Verifier**  
+   Repository: [Managed Verifier](https://github.com/usherlabs/verity-dp/tree/main/ic/managed/verifier)  
+   *Note:* The canister ID for the Managed Verifier will be required in the next step.
+
+2. **ADC Processor**  
+   Location: [ADC Processor](../processor/ic)  
+   To configure this canister, set the verifier address by calling  the `set_verifier_canister` method
+
+3. **ADC Caller Example**  
+   Run the ADC_Caller example and set the ADC address using the `set_adc_address` method.
+
+## Running the Benchmark
+
+Once all three canisters are running, you can edit the benchmark URL (located in `./__tests__/test_adc.test.ts`) if needed. Then, prepare and run your tests using either npm or yarn:
+
+```bash
+# Using npm:
+npm run prep
+npm run test
+
+# Or using yarn:
+yarn prep
+yarn test
+```
+
+---
+
+# processor_caller Project
+
+Welcome to your new `processor_caller` project and the Internet Computer development community! When you create a project, this README and a set of template files are added automatically to help speed up your development cycle. Feel free to customize these files to suit your needs.
+
+## Getting Started
+
+Take a moment to explore the project directory and review the default configuration file. Changes made locally will not affect any production deployment or identity tokens.
+
+For more detailed guidance, consult the following resources:
 
 - [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
 - [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
 - [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
+- [ic-cdk Documentation](https://docs.rs/ic-cdk)
+- [ic-cdk-macros Documentation](https://docs.rs/ic-cdk-macros)
 - [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
 
-If you want to start working on your project right away, you might want to try the following commands:
+If you're ready to begin, try running the following commands:
 
 ```bash
 cd processor_caller/
@@ -21,42 +68,60 @@ dfx help
 dfx canister --help
 ```
 
-## Running the project locally
+## Running the Project Locally
 
-If you want to test your project locally, you can use the following commands:
+To test your project on your local machine, follow these steps:
 
-```bash
-# Starts the replica, running in the background
-dfx start --background
+1. **Start the Local Replica:**
 
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
-```
+   ```bash
+   dfx start --background
+   ```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+2. **Deploy the Canisters:**
 
-If you have made changes to your backend canister, you can generate a new candid interface with
+   ```bash
+   dfx deploy
+   ```
 
-```bash
-npm run generate
-```
+   After deployment, your application will be available at:
+   ```
+   http://localhost:4943?canisterId={asset_canister_id}
+   ```
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
+3. **Regenerate the Candid Interface:**
 
-If you are making frontend changes, you can start a development server with
+   If you update your backend canister, run:
+   ```bash
+   npm run generate
+   ```
+   This step is recommended before starting the frontend development server and is also executed automatically during `dfx deploy`.
 
-```bash
-npm start
-```
+4. **Start the Frontend Development Server:**
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+   ```bash
+   npm start
+   ```
+   This command starts a server at `http://localhost:8080` that proxies API requests to the replica on port 4943.
 
-### Note on frontend environment variables
+## Frontend Environment Variables
 
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
+If you are hosting the frontend code without using DFX, consider the following adjustments to prevent your project from fetching the root key in production:
 
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
-# adc-canister-caller
+- **For Webpack Users:**  
+  Set `DFX_NETWORK` to `ic`.
+
+- **Replacing Environment Variables:**  
+  Use your preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations. For example, in `dfx.json` you can set:
+  ```json
+  "canisters": {
+    "asset_canister_id": {
+      "declarations": {
+        "env_override": "your_value"
+      }
+    }
+  }
+  ```
+
+- **Custom Actor Creation:**  
+  Alternatively, implement your own `createActor` constructor.
