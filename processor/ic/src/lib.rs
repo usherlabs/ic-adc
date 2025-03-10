@@ -33,7 +33,7 @@ fn name() -> String {
 async fn init(verifier_canister: Option<Principal>) {
     owner::init_owner();
     state::set_verifier_canister(verifier_canister);
-    state::set_transaction_fee(10_000_000_000);
+    state::set_transaction_fee(10);
 }
 
 #[ic_cdk::update]

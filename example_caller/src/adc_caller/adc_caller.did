@@ -47,6 +47,10 @@ type ResponseResultV2 = variant {
   err: ErrorResponse;
 };
 
+type Headers = record {
+  key : text;
+  value : text;
+};
 
 service : {
   "set_adc_address": (principal) -> ();
@@ -56,4 +60,8 @@ service : {
   "submit_adc_request" : (text) -> (text);
   "receive_adc_response" : (ResponseResult) -> ();
   "receive_adc_response_v2": (ResponseResultV2) -> ();
+
+  // request data from URL
+  "send_http_request" : (target_url : text, method: text, redacted : text, headers : vec Headers, body : text) -> (text);
+  "submit_http_request" :  (target_url : text, method: text, redacted : text, headers : vec Headers, body : text) -> (text);
 };
