@@ -41,6 +41,26 @@ yarn prep
 yarn test
 ```
 
+### Our Benchmark
+
+| Component    | Cycle Usage   |
+| ------------ | ------------- |
+| ADC CALLER   | 1,034,740     |
+| ADC          | 910,676       |
+| VERIFIER     | 115,798       |
+| **Total**    | **2,061,214** |
+
+### HTTP_OUTCALL Benchmark
+
+| Metric                                      |   Cycle Usage        |
+| ------------------------------------------- | ------------------ |
+| Execution HTTPS_OUT_CALL time               | 4818 ms            |
+| HTTPS_OUT_CALL ADC CALLER cycle used        | 1,605,497,196      |
+| HTTPS_OUT_CALL ADC cycle used               | 101,455            |
+| HTTPS_OUT_CALL VERIFIER cycle used          | 106,086            |
+| **Total HTTPS_OUT_CALL cycle used**         | **1,605,704,737**  |
+
+
 ---
 
 # processor_caller Project
