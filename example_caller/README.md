@@ -45,10 +45,10 @@ yarn test
 
 | Component    | Cycle Usage   |
 | ------------ | ------------- |
-| ADC CALLER   | 1,034,740     |
-| ADC          | 910,676       |
-| VERIFIER     | 115,798       |
-| **Total**    | **2,061,214** |
+| ADC CALLER   | 2,065,757     |
+| ADC          | 21,104,227    |
+| VERIFIER     | 98,669,250     |
+| **Total**    | **121,839,234** |
 
 ### HTTP_OUTCALL Benchmark
 

@@ -50,6 +50,7 @@ async fn remove_from_whitelist(principal: Principal) {
 
 #[ic_cdk::update]
 async fn set_verifier_canister(verifier_canister_principal: Principal) {
+    owner::only_owner();
     state::set_verifier_canister(Some(verifier_canister_principal));
 }
 

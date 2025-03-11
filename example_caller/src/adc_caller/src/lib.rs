@@ -3,6 +3,7 @@ use ic_cdk::{
     api::{call::call_with_payment128, management_canister::http_request::TransformFunc},
     storage,
 };
+use state::{get_request_value, set_request_value};
 use types::{ADCResponse, ADCResponseV2, Headers, RequestOpts};
 use verity_ic::owner;
 
@@ -176,7 +177,7 @@ fn transform(raw: TransformArgs) -> HttpResponse {
 async fn init(adc_canister: Option<Principal>) {
     owner::init_owner();
     state::set_adc_address(adc_canister);
-    state::set_transaction_fee(1_000_000_000);
+    state::set_transaction_fee(2_000_000_000);
 }
 
 #[ic_cdk::update]
@@ -276,11 +277,19 @@ fn receive_adc_response(response: ADCResponse) {
 
 #[ic_cdk::update]
 /// recieve a response form the ADC canister
+fn get_adc_response(request_id: String)-> Option<String>  {
+    get_request_value(&request_id)
+}
+
+#[ic_cdk::update]
+/// recieve a response form the ADC canister
 fn receive_adc_response_v2(response: ADCResponseV2) {
+    let adc_response = response.unwrap();
     // log the price and name of each asset recieved
-    for content in response.unwrap().contents {
+    for content in adc_response.clone().contents {
         // if there was an error fetching the currency pair then log an error
         ic_cdk::println!("\n\nContent:\n {}", content);
+        set_request_value(&adc_response.id,content);
     }
 }
 

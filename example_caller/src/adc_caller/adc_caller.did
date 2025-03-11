@@ -60,6 +60,7 @@ service : {
   "submit_adc_request" : (text) -> (text);
   "receive_adc_response" : (ResponseResult) -> ();
   "receive_adc_response_v2": (ResponseResultV2) -> ();
+  "get_adc_response" : (request_id : text) -> (opt text );
 
   // request data from URL
   "send_http_request" : (target_url : text, method: text, redacted : text, headers : vec Headers, body : text) -> (text);

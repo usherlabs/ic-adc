@@ -70,11 +70,14 @@ describe("ADC-caller IC Verifier", () => {
     const old_balance_verifier=await getCanisterCycles(verifier)
 
     const startTime = Date.now();
-    const result = await ADC_CALLER.submit_http_request(target_url,method,redacted,headers,body) as any;
-    expect(result).toBeDefined();
+    const request_id = await ADC_CALLER.submit_http_request(target_url,method,redacted,headers,body) as any;
+    expect(request_id).toBeDefined();
     console.log(`Execution time: ${Date.now()-startTime} ms`);
     console.log(`Execution HTTPS_OUT_CALL time: ${Date.now()-startTime} ms`);
-    await wait(20000);
+    await wait(60000);
+    const result = await ADC_CALLER.get_adc_response(request_id) as any;
+    expect(result.length).toBe(1);
+    expect(result[0].length).toBeGreaterThan(2024);
     const _adc_caller=old_balance_adc_caller-await getCanisterCycles(adc_caller)
     const _adc = old_balance_adc-(await getCanisterCycles(processor_canister))
     const _verifier = old_balance_verifier-(await getCanisterCycles(verifier))
@@ -83,6 +86,6 @@ describe("ADC-caller IC Verifier", () => {
     console.log("VERIFIER cycle used:",_verifier)
     console.log("TOTAL cycle used:",_adc_caller+_adc+_verifier)
 
-  },600000);
+  },1000000);
 
 })
