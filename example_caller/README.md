@@ -1,6 +1,10 @@
+Below is the updated documentation with a fourth requirement added for the Orchestrator. This new section explains that the Orchestrator must be running with the write canister ID and the JOB_SCHEDULE set to run every 5 seconds for the best results.
+
+---
+
 # Benchmarking Setup
 
-This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters and a notary server are up and running.
+This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters, a notary server, and an Orchestrator are up and running.
 
 ## Notary Server
 
@@ -12,9 +16,9 @@ This project can be used to benchmark requests. Before you begin testing, you mu
   export NOTARY_URL="https://your-notary-url"
   ```
 
-## Required Canisters
+## Required Canisters & Orchestrator
 
-The following canisters must be deployed in order:
+The following must be deployed and running in order:
 
 1. **Managed Verifier**  
    Repository: [Managed Verifier](https://github.com/usherlabs/verity-dp/tree/main/ic/managed/verifier)  
@@ -22,14 +26,25 @@ The following canisters must be deployed in order:
 
 2. **ADC Processor**  
    Location: [ADC Processor](../processor/ic)  
-   To configure this canister, set the verifier address by calling  the `set_verifier_canister` method
+   To configure this canister, set the verifier address by calling the `set_verifier_canister` method.
 
 3. **ADC Caller Example**  
    Run the ADC_Caller example and set the ADC address using the `set_adc_address` method.
 
+4. **Orchestrator**  
+   The Orchestrator should be running from the `./orchestrator` directory. Make sure to launch it with the following requirements:
+   - **Write Canister ID:** Provide the write canister ID as required.
+   - **Job Schedule:** Set the environment variable `JOB_SCHEDULE` to `*/5 * * * * *` to schedule the job to run every 5 seconds for optimal benchmarking results.
+   
+   For example, you might start the orchestrator as follows:
+   ```bash
+   export JOB_SCHEDULE="*/5 * * * * *"
+   ./orchestrator --write-canister-id <your_write_canister_id>
+   ```
+
 ## Running the Benchmark
 
-Once all three canisters are running, you can edit the benchmark URL (located in `./__tests__/test_adc.test.ts`) if needed. Then, prepare and run your tests using either npm or yarn:
+Once all three canisters and the orchestrator are running, you can edit the benchmark URL (located in `./__tests__/test_adc.test.ts`) if needed. Then, prepare and run your tests using either npm or yarn:
 
 ```bash
 # Using npm:
@@ -47,19 +62,18 @@ yarn test
 | ------------ | ------------- |
 | ADC CALLER   | 2,065,757     |
 | ADC          | 21,104,227    |
-| VERIFIER     | 98,669,250     |
+| VERIFIER     | 98,669,250    |
 | **Total**    | **121,839,234** |
 
 ### HTTP_OUTCALL Benchmark
 
-| Metric                                      |   Cycle Usage        |
-| ------------------------------------------- | ------------------ |
-| Execution HTTPS_OUT_CALL time               | 4818 ms            |
-| HTTPS_OUT_CALL ADC CALLER cycle used        | 1,605,497,196      |
-| HTTPS_OUT_CALL ADC cycle used               | 101,455            |
-| HTTPS_OUT_CALL VERIFIER cycle used          | 106,086            |
-| **Total HTTPS_OUT_CALL cycle used**         | **1,605,704,737**  |
-
+| Metric                                      | Cycle Usage         |
+| ------------------------------------------- | ------------------- |
+| Execution HTTPS_OUT_CALL time               | 4818 ms             |
+| HTTPS_OUT_CALL ADC CALLER cycle used        | 1,605,497,196       |
+| HTTPS_OUT_CALL ADC cycle used               | 101,455             |
+| HTTPS_OUT_CALL VERIFIER cycle used          | 106,086             |
+| **Total HTTPS_OUT_CALL cycle used**         | **1,605,704,737**   |
 
 ---
 
@@ -145,3 +159,7 @@ If you are hosting the frontend code without using DFX, consider the following a
 
 - **Custom Actor Creation:**  
   Alternatively, implement your own `createActor` constructor.
+
+---
+
+This updated documentation now includes a fourth requirement ensuring that the Orchestrator is running with the correct configuration for optimal benchmarking results. Happy coding!
