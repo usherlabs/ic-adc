@@ -6,7 +6,8 @@ import axios from "axios"
 
 
 
-let verifier:string;
+// biome-ignore lint/style/useSingleVarDeclarator: initialized variable
+let verifier:string,total_http_out_call:number;
 
 const target_url="https://api-testnet.nearblocks.io/v1/account/x-bitte-nfts.testnet/txns-only?cursor=0&order=asc";
 const method="GET"
@@ -52,7 +53,7 @@ describe("ADC-caller IC Verifier", () => {
     const startTime = Date.now();
     const result = await ADC_CALLER.send_http_request(target_url,method,redacted,headers,body) as any;
     expect(result).toBeDefined();
-    expect(result).toContain("txn")
+    expect(result).toContain("txns")
     console.log(`Execution HTTPS_OUT_CALL time: ${Date.now()-startTime} ms`);
     const _adc_caller=old_balance_adc_caller-await getCanisterCycles(adc_caller)
     const _adc = old_balance_adc-(await getCanisterCycles(processor_canister))
@@ -61,6 +62,7 @@ describe("ADC-caller IC Verifier", () => {
     console.log("HTTPS_OUT_CALL ADC cycle used:",_adc)
     console.log("HTTPS_OUT_CALL VERIFIER cycle used:",_verifier)
     console.log("TOTAL HTTPS_OUT_CALL cycle used:",_adc_caller+_adc+_verifier)
+    total_http_out_call=_adc_caller+_adc+_verifier
   },60000);
 
 
@@ -77,6 +79,7 @@ describe("ADC-caller IC Verifier", () => {
     await wait(60000);
     const result = await ADC_CALLER.get_adc_response(request_id) as any;
     expect(result.length).toBe(1);
+    expect(result[0]).toContain("txns")
     expect(result[0].length).toBeGreaterThan(2024);
     const _adc_caller=old_balance_adc_caller-await getCanisterCycles(adc_caller)
     const _adc = old_balance_adc-(await getCanisterCycles(processor_canister))
@@ -86,6 +89,7 @@ describe("ADC-caller IC Verifier", () => {
     console.log("VERIFIER cycle used:",_verifier)
     console.log("TOTAL cycle used:",_adc_caller+_adc+_verifier)
 
+    console.log(`Cost savings:\t${((1-(_adc_caller+_adc+_verifier)/total_http_out_call)*100).toFixed(2)} %`)
   },1000000);
 
 })

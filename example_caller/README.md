@@ -43,7 +43,7 @@ You must deploy several Internet Computer canisters (from a foreign repository) 
 
   1. Set the job schedule (to run every 5 seconds for optimal benchmarking):
      ```bash
-     export JOB_SCHEDULE="*/5 * * * * *"
+     export JOB_SCHEDULE="*/2 * * * * *"
      ```
   2. Launch the orchestrator by providing the write canister ID:
      ```bash
