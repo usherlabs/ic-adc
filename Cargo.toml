@@ -31,7 +31,6 @@ ic-utils = { git = "https://github.com/dfinity/agent-rs.git", rev = "60a64dd2d53
 rand = "0.8.5"
 reqwest = "0.12.9"
 serde = "1.0.215"
-serde_bytes = "0.11.9"
 serde_json = "1.0.133"
 thiserror = "1.0.69"
 time = "0.3.37"

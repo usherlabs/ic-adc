@@ -1,4 +1,5 @@
 use price::poller::LogPollerState;
+use tracing::debug;
 
 pub mod price;
 pub mod url;
@@ -16,7 +17,8 @@ pub async fn batch_handler(notary_information: Arc<NotaryInformation>)->() {
     // get all the logs which meet this criteria
     let (latest_valid_logs, latest_valid_url_logs) = get_canister_logs(&config, Some(state.start_timestamp)).await.expect("canister Log");
 
-    // println!("{:?}\n{:?}",&latest_valid_logs, &latest_valid_url_logs);
+    debug!("Fetched {} valid price logs\nFetched {} valid url logs", latest_valid_logs.len(),latest_valid_url_logs.len());
+
     url::handler(notary_information.clone(), latest_valid_url_logs).await;
     price::handler(notary_information,latest_valid_logs).await;
 }

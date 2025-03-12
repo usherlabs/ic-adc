@@ -1,6 +1,5 @@
 use crate::{
     config::{Config, NotaryInformation},
-    handlers::price::poller::LogPollerState,
     helpers::{
         logs::types::EventUrlLog,
         utils::get_utc_timestamp,
@@ -50,14 +49,7 @@ pub async fn process_canister_logs(
     notary_information: Arc<NotaryInformation>,
     latest_valid_logs: Vec<EventUrlLog>,
 ) -> anyhow::Result<u64> {
-    let state = LogPollerState::load_state()?;
-
     let config = Config::env();
-    let start_timestamp =
-        chrono::DateTime::from_timestamp(i64::try_from(state.start_timestamp)?, 0).unwrap();
-    debug!("Fetching canister logs since {:?}", start_timestamp);
-
-    debug!("Fetched {} valid logs", latest_valid_logs.len());
 
     if latest_valid_logs.len() == 0 {
         return Ok(get_utc_timestamp());
@@ -66,7 +58,7 @@ pub async fn process_canister_logs(
     // generate proofs using redstone api and pyth api
     let responses = resolve_data(latest_valid_logs.clone()).await;
 
-    info!("Processed {} valid logs", responses.len(),);
+    info!("Processed {} valid url logs", responses.len(),);
 
     let agent = config.get_agent().await?;
     let notary_pubkey = &notary_information.public_key;
