@@ -5,7 +5,7 @@ use ic_cdk::{
 };
 use state::{get_request_value, set_request_value};
 use types::{ADCResponse, ADCResponseV2, Headers, RequestOpts};
-use verity_ic::owner;
+use verity_ic::{owner, verify::types::ProofResponse};
 
 pub mod state;
 
@@ -253,7 +253,7 @@ async fn submit_http_request(
 }
 
 #[ic_cdk::update]
-/// recieve a response form the ADC canister
+/// receive a response form the ADC canister
 fn receive_adc_response(response: ADCResponse) {
     // log the price and name of each asset recieved
     for currency_pair in response.unwrap().pairs {
@@ -276,20 +276,21 @@ fn receive_adc_response(response: ADCResponse) {
 }
 
 #[ic_cdk::update]
-/// recieve a response form the ADC canister
+/// receive a response form the ADC canister
 fn get_adc_response(request_id: String)-> Option<String>  {
     get_request_value(&request_id)
 }
 
 #[ic_cdk::update]
-/// recieve a response form the ADC canister
+/// receive a response form the ADC canister
 fn receive_adc_response_v2(response: ADCResponseV2) {
     let adc_response = response.unwrap();
-    // log the price and name of each asset recieved
+    // log the price and name of each asset received
     for content in adc_response.clone().contents {
         // if there was an error fetching the currency pair then log an error
-        ic_cdk::println!("\n\nContent:\n {}", content);
-        set_request_value(&adc_response.id,content);
+        let full_proof= ProofResponse::FullProof(content).get_http_response_body();
+        ic_cdk::println!("\n\nContent:\n {}", &full_proof);
+        set_request_value(&adc_response.id,full_proof);
     }
 }
 
