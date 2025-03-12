@@ -22,7 +22,7 @@ function wait(ms: number) {
 describe("ADC-caller IC Verifier", () => {
 
   beforeAll(async()=>{
-    const notary_info = await axios.get(`${process.env.NOTARY_URL??"http://127.0.0.1:8080"}/notaryinfo`)
+    const notary_info = await axios.get(`${process.env.PROVER_URL??"http://127.0.0.1:8080"}/notaryinfo`)
     expect(notary_info.status,"Notary is no active").toBe(200)
     expect(notary_info.data.publicKey.startsWith("-----BEGIN PUBLIC KEY-----")).toBe(true)
 

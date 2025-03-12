@@ -4,16 +4,16 @@ Below is the updated documentation with a fourth requirement added for the Orche
 
 # Benchmarking Setup
 
-This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters, a notary server, and an Orchestrator are up and running.
+This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters, a prover server, and an Orchestrator are up and running.
 
-## Notary Server
+## PROVER Server
 
 - **Default URL:**  
-  Your local verity notary will be used by default at `http://localhost:8080`.  
+  Your local verity prover will be used by default at `http://localhost:8080`.  
 - **Custom URL:**  
   Change this by setting the environment variable:  
   ```bash
-  export NOTARY_URL="https://your-notary-url"
+  export PROVER_URL="https://your-prover-url"
   ```
 
 ## Required Canisters & Orchestrator
