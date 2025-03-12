@@ -1,61 +1,78 @@
-Below is the updated documentation with a fourth requirement added for the Orchestrator. This new section explains that the Orchestrator must be running with the write canister ID and the JOB_SCHEDULE set to run every 5 seconds for the best results.
+##  Benchmarking Workflow
+
+Before running your tests, ensure that all required services and canisters are deployed and running. The workflow is split into four main phases:
+
+### 1. Install Dependencies
+
+Make sure all project dependencies are installed:
+```bash
+yarn install
+```
 
 ---
 
-# Benchmarking Setup
+### 2. Prepare the Environment
 
-This project can be used to benchmark requests. Before you begin testing, you must ensure that three Internet Computer (IC) canisters, a prover server, and an Orchestrator are up and running.
-
-## PROVER Server
-
-- **Default URL:**  
-  Your local verity prover will be used by default at `http://localhost:8080`.  
-- **Custom URL:**  
-  Change this by setting the environment variable:  
-  ```bash
-  export PROVER_URL="https://your-prover-url"
-  ```
-
-## Required Canisters & Orchestrator
-
-The following must be deployed and running in order:
-
-1. **Managed Verifier**  
-   Repository: [Managed Verifier](https://github.com/usherlabs/verity-dp/tree/main/ic/managed/verifier)  
-   *Note:* The canister ID for the Managed Verifier will be required in the next step.
-
-2. **ADC Processor**  
-   Location: [ADC Processor](../processor/ic)  
-   To configure this canister, set the verifier address by calling the `set_verifier_canister` method.
-
-3. **ADC Caller Example**  
-   Run the ADC_Caller example and set the ADC address using the `set_adc_address` method.
-
-4. **Orchestrator**  
-   The Orchestrator should be running from the `./orchestrator` directory. Make sure to launch it with the following requirements:
-   - **Write Canister ID:** Provide the write canister ID as required.
-   - **Job Schedule:** Set the environment variable `JOB_SCHEDULE` to `*/5 * * * * *` to schedule the job to run every 5 seconds for optimal benchmarking results.
-   
-   For example, you might start the orchestrator as follows:
-   ```bash
-   export JOB_SCHEDULE="*/5 * * * * *"
-   ./orchestrator --write-canister-id <your_write_canister_id>
-   ```
-
-## Running the Benchmark
-
-Once all three canisters and the orchestrator are running, you can edit the benchmark URL (located in `./__tests__/test_adc.test.ts`) if needed. Then, prepare and run your tests using either npm or yarn:
+Run the preparation script to configure your local environment and generate any required artifacts:
 
 ```bash
-# Using npm:
-npm run prep
-npm run test
-
-# Or using yarn:
 yarn prep
+```
+
+---
+
+### 3. Deploy Required Canisters and Start the Orchestrator
+
+You must deploy several Internet Computer canisters (from a foreign repository) and start the Orchestrator. Follow these substeps:
+
+- **Deploy Canisters in Order:**
+
+  1. **Managed Verifier:**  
+     - Repository: [Managed Verifier](https://github.com/usherlabs/verity-dp/tree/main/ic/managed/verifier)  
+     - *Note:* You'll need the Managed Verifier's canister ID for later configuration.
+
+  2. **ADC Processor:**  
+     - Location: [ADC Processor](../processor/ic)  
+     - After deployment, configure it by calling the `set_verifier_canister` method with the Managed Verifier's canister ID.
+
+  3. **ADC Caller Example:**  
+     - Deploy and configure it by calling the `set_adc_address` method with the appropriate ADC address.
+
+- **Start the Orchestrator:**  
+  Navigate to the `./orchestrator` directory and run the orchestrator with the following steps:
+
+  1. Set the job schedule (to run every 5 seconds for optimal benchmarking):
+     ```bash
+     export JOB_SCHEDULE="*/5 * * * * *"
+     ```
+  2. Launch the orchestrator by providing the write canister ID:
+     ```bash
+     cd ./orchestrator && cargo run
+     ```
+
+---
+
+### 4. Run the Tests
+
+After ensuring all services are up, run your tests:
+
+```bash
 yarn test
 ```
 
+---
+
+## Additional Setup Details
+
+### PROVER Server
+- **Default URL:**  
+  The local verity prover is assumed to be running at `http://localhost:8080`.
+
+- **Custom URL:**  
+  If using a different URL, export the following environment variable:
+  ```bash
+  export PROVER_URL="https://your-prover-url"
+  ```
 ### Our Benchmark
 
 | Component    | Cycle Usage   |
@@ -77,89 +94,4 @@ yarn test
 
 ---
 
-# processor_caller Project
-
-Welcome to your new `processor_caller` project and the Internet Computer development community! When you create a project, this README and a set of template files are added automatically to help speed up your development cycle. Feel free to customize these files to suit your needs.
-
-## Getting Started
-
-Take a moment to explore the project directory and review the default configuration file. Changes made locally will not affect any production deployment or identity tokens.
-
-For more detailed guidance, consult the following resources:
-
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk Documentation](https://docs.rs/ic-cdk)
-- [ic-cdk-macros Documentation](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
-
-If you're ready to begin, try running the following commands:
-
-```bash
-cd processor_caller/
-dfx help
-dfx canister --help
-```
-
-## Running the Project Locally
-
-To test your project on your local machine, follow these steps:
-
-1. **Start the Local Replica:**
-
-   ```bash
-   dfx start --background
-   ```
-
-2. **Deploy the Canisters:**
-
-   ```bash
-   dfx deploy
-   ```
-
-   After deployment, your application will be available at:
-   ```
-   http://localhost:4943?canisterId={asset_canister_id}
-   ```
-
-3. **Regenerate the Candid Interface:**
-
-   If you update your backend canister, run:
-   ```bash
-   npm run generate
-   ```
-   This step is recommended before starting the frontend development server and is also executed automatically during `dfx deploy`.
-
-4. **Start the Frontend Development Server:**
-
-   ```bash
-   npm start
-   ```
-   This command starts a server at `http://localhost:8080` that proxies API requests to the replica on port 4943.
-
-## Frontend Environment Variables
-
-If you are hosting the frontend code without using DFX, consider the following adjustments to prevent your project from fetching the root key in production:
-
-- **For Webpack Users:**  
-  Set `DFX_NETWORK` to `ic`.
-
-- **Replacing Environment Variables:**  
-  Use your preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations. For example, in `dfx.json` you can set:
-  ```json
-  "canisters": {
-    "asset_canister_id": {
-      "declarations": {
-        "env_override": "your_value"
-      }
-    }
-  }
-  ```
-
-- **Custom Actor Creation:**  
-  Alternatively, implement your own `createActor` constructor.
-
----
-
-This updated documentation now includes a fourth requirement ensuring that the Orchestrator is running with the correct configuration for optimal benchmarking results. Happy coding!
+By following these steps in order, you ensure that your environment is properly configured and all necessary services are running before executing your tests. This clear workflow minimizes errors and improves reproducibility.

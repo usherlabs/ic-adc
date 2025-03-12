@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = { workspace = true }
 ic-cdk = { workspace = true }
-ic-cdk-macros = "0.17.0"
+ic-cdk-macros = { workspace = true }
 types = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
