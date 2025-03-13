@@ -58,10 +58,10 @@ describe("ADC-caller IC Verifier", () => {
     const _adc_caller=old_balance_adc_caller-await getCanisterCycles(adc_caller)
     const _adc = old_balance_adc-(await getCanisterCycles(processor_canister))
     const _verifier = old_balance_verifier-(await getCanisterCycles(verifier))
-    console.log("HTTPS_OUT_CALL ADC CALLER cycle used:",_adc_caller)
-    console.log("HTTPS_OUT_CALL ADC cycle used:",_adc)
-    console.log("HTTPS_OUT_CALL VERIFIER cycle used:",_verifier)
-    console.log("TOTAL HTTPS_OUT_CALL cycle used:",_adc_caller+_adc+_verifier)
+    console.log("HTTPS_OUT_CALL ADC CALLER cycle used:\t\t",_adc_caller)
+    console.log("HTTPS_OUT_CALL ADC    cycle used:\t\t",_adc)
+    console.log("HTTPS_OUT_CALL VERIFIER cycle used:\t\t",_verifier)
+    console.log("TOTAL HTTPS_OUT_CALL  cycle used:\t\t",_adc_caller+_adc+_verifier)
     total_http_out_call=_adc_caller+_adc+_verifier
   },60000);
 
@@ -84,12 +84,12 @@ describe("ADC-caller IC Verifier", () => {
     const _adc_caller=old_balance_adc_caller-await getCanisterCycles(adc_caller)
     const _adc = old_balance_adc-(await getCanisterCycles(processor_canister))
     const _verifier = old_balance_verifier-(await getCanisterCycles(verifier))
-    console.log("ADC CALLER cycle used:",_adc_caller)
-    console.log("ADC cycle used:",_adc)
-    console.log("VERIFIER cycle used:",_verifier)
-    console.log("TOTAL cycle used:",_adc_caller+_adc+_verifier)
+    console.log("ADC CALLER cycle used:\t\t",_adc_caller)
+    console.log("ADC cycle   used:\t\t",_adc)
+    console.log("VERIFIER cycle used:\t\t",_verifier)
+    console.log("TOTAL cycle used:\t\t",_adc_caller+_adc+_verifier)
 
-    console.log(`Cost savings:\t${((1-(_adc_caller+_adc+_verifier)/total_http_out_call)*100).toFixed(2)} %`)
+    console.log(`Cost savings    :\t\t${((1-(_adc_caller+_adc+_verifier)/total_http_out_call)*100).toFixed(2)} %`)
   },1000000);
 
 })
