@@ -67,9 +67,17 @@ You must deploy several Internet Computer canisters (from a foreign repository) 
   2. **ADC Processor:**  
      - Location: [ADC Processor](../processor/ic)  
      - After deployment, configure it by calling the `set_verifier_canister` method with the Managed Verifier's canister ID.
+      
+      ```shell
+         dfx canister call adc set_verifier_canister '(principal "bkyz2-fmaaa-aaaaa-qaaaq-cai")'
+      ```
 
   3. **ADC Caller Example:**  
      - Deploy and configure it by calling the `set_adc_address` method with the appropriate ADC address.
+  
+      ```shell
+         dfx canister call adc_caller set_adc_address '(principal "bw4dl-smaaa-aaaaa-qaacq-cai")'
+      ```
 
 - **Start the Orchestrator:**  
   Navigate to the `./orchestrator` directory and run the orchestrator with the following steps:

@@ -6,8 +6,9 @@
   "scripts": {
     "test": "vitest",
     "ci": "vitest run",
-    "prep": "dfx stop; dfx start --background --clean; dfx deploy; dfx generate ; cd ../processor/ic/ ;  dfx deploy; dfx generate; cd ../../example_caller",
-    "prepare": "husky",
+    "prep": "dfx deploy; dfx generate ; cd ../processor/ic/ ;  dfx deploy; dfx generate; cd ../../example_caller",
+    "prep:clean": "dfx stop; dfx start --background --clean; pnpm prep",
+    "prepare": "HUSKY_GIT_DIR=\"../.git\" husky",
     "format": "biome format __tests__/ --fix",
     "lint": "biome check __tests__/",
     "lint:fix": "biome check __tests__/ --fix"
