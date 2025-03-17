@@ -35,7 +35,6 @@ pub fn set_verifier_canister(new_verifier_canister: Option<Principal>) {
         .with(|old_verifier_canister| *old_verifier_canister.borrow_mut() = new_verifier_canister);
 }
 
-
 /// Setter for `FEE` state variable
 pub fn set_transaction_fee(new_fee: u128) {
     FEE.with(|old_fee| *old_fee.borrow_mut() = new_fee);

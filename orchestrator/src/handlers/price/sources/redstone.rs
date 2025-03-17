@@ -6,7 +6,6 @@ use types::ProofTypes;
 use crate::handlers::price::traits::PricingDataSource;
 use crate::helpers::verity::get_verity_client;
 
-
 #[derive(Debug)]
 pub struct Redstone {}
 
@@ -30,7 +29,7 @@ impl PricingDataSource for Redstone {
         let response = verity_client.get(&request_url).send().await?;
 
         // check for a succesfull and valid response
-        let http_response_string= response.subject.text().await?;  
+        let http_response_string = response.subject.text().await?;
         Self::validate_response(http_response_string).await?;
 
         return Ok(ProofTypes::Redstone(response.proof));

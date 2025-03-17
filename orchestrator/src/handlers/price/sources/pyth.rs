@@ -6,7 +6,6 @@ use types::ProofTypes;
 use crate::handlers::price::traits::PricingDataSource;
 use crate::helpers::verity::get_verity_client;
 
-
 #[derive(Debug)]
 pub struct Pyth {}
 

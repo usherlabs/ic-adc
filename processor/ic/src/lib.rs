@@ -1,8 +1,6 @@
 use candid::Principal;
 use core::panic;
-use ic_cdk::{
-    println, storage,
-};
+use ic_cdk::{println, storage};
 use sources::request_proof_verification;
 use state::REQUEST_RESPONSE_BUFFER;
 use std::collections::HashMap;
@@ -11,7 +9,8 @@ use types::{
     Response, ResponseV2,
 };
 use utils::{
-    check_gas, generate_request_url, get_currency_pair_price, send_adc_response, send_adc_response_v2
+    check_gas, generate_request_url, get_currency_pair_price, send_adc_response,
+    send_adc_response_v2,
 };
 use verity_ic::{owner, whitelist};
 
@@ -65,17 +64,16 @@ async fn get_verifier_canister() -> Option<Principal> {
     state::get_verifier_canister()
 }
 
-
 #[ic_cdk::query]
 async fn get_transaction_fee() -> u128 {
     state::get_transaction_fee()
 }
 
-#[ic_cdk::update]
 /// requests prices from the orchestrator
 /// where `currency_pairs` is a comma separated list of pairs
 /// e.g "BTC,ETH/USDT"
 /// @dev? is the person requesting the prices supposed to provide the prices
+#[ic_cdk::update]
 async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     assert!(
         state::get_verifier_canister().is_some(),
@@ -115,6 +113,34 @@ async fn request_data(currency_pairs: String, opts: RequestOpts) -> String {
     return request_id;
 }
 
+/// This function allows you to request data from any target URL.
+/// It accepts the target URL, HTTP method, headers, and body as parameters.
+/// The function generates a unique request ID, checks for sufficient gas,
+/// and logs the request to be picked up by the orchestrator.
+///
+/// # Arguments
+///
+/// * `target_url` - The URL to which the request is to be sent.
+/// * `method` - The HTTP method to be used (e.g., GET, POST).
+/// * `redacted` - A redacted version of the request for logging purposes.
+/// * `headers` - A vector of headers to be included in the request.
+/// * `body` - The body of the request.
+///
+/// # Returns
+///
+/// * `String` - A unique request ID.
+///
+/// # Example
+///
+/// ```
+/// let request_id = request_data_url(
+///     "https://example.com/api".to_string(),
+///     "POST".to_string(),
+///     "redacted".to_string(),
+///     vec![Headers { key: "Content-Type".to_string(), value: "application/json".to_string() }],
+///     "{\"key\": \"value\"}".to_string()
+/// ).await;
+/// ```
 #[ic_cdk::update]
 async fn request_data_url(
     target_url: String,
@@ -265,17 +291,16 @@ fn pre_upgrade() {
     let cloned_whitelist = whitelist::WHITE_LIST.with(|rc| rc.borrow().clone());
     let cloned_fee = state::get_transaction_fee();
 
-
     storage::stable_save((cloned_buffer, cloned_whitelist, cloned_verifier, cloned_fee)).unwrap()
 }
 #[ic_cdk::post_upgrade]
 /// restore state variables from backup
 async fn post_upgrade() {
-    let (cached_buffer, cached_whitelist, cached_verifier,cached_fee): (
+    let (cached_buffer, cached_whitelist, cached_verifier, cached_fee): (
         HashMap<String, bool>,
         HashMap<Principal, bool>,
         Option<Principal>,
-        u128
+        u128,
     ) = storage::stable_restore().unwrap();
 
     owner::init_owner();

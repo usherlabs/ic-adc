@@ -1,9 +1,6 @@
 use crate::{
     config::{Config, NotaryInformation},
-    helpers::{
-        logs::types::EventLog,
-        utils::get_utc_timestamp,
-    },
+    helpers::{logs::types::EventLog, utils::get_utc_timestamp},
 };
 // use anyhow::Result;
 use poller::LogPollerState;
@@ -28,10 +25,7 @@ pub static IS_RUNNING: AtomicBool = AtomicBool::new(false);
 
 pub type ResponseResult = Result<Response, ErrorResponse>;
 
-pub async fn handler(
-    notary_information: Arc<NotaryInformation>,
-    latest_valid_logs: Vec<EventLog>
-) {
+pub async fn handler(notary_information: Arc<NotaryInformation>, latest_valid_logs: Vec<EventLog>) {
     // if program is already running then return
     if IS_RUNNING.load(Ordering::SeqCst) {
         return;
@@ -40,7 +34,7 @@ pub async fn handler(
     // set the running state to true to prevent further instances until this is complete
     IS_RUNNING.store(true, Ordering::SeqCst);
 
-    let fetch_logs_response = process_canister_logs(notary_information,latest_valid_logs).await;
+    let fetch_logs_response = process_canister_logs(notary_information, latest_valid_logs).await;
 
     if let Err(e) = fetch_logs_response {
         error!("Failed to fetch canister logs: {}", e)
@@ -57,11 +51,10 @@ pub async fn handler(
 /// register handlers for several orchestrator programs
 pub async fn process_canister_logs(
     notary_information: Arc<NotaryInformation>,
-    latest_valid_logs: Vec<EventLog>
+    latest_valid_logs: Vec<EventLog>,
 ) -> anyhow::Result<u64> {
-
     let config = Config::env();
-    
+
     if latest_valid_logs.len() == 0 {
         return Ok(get_utc_timestamp());
     };

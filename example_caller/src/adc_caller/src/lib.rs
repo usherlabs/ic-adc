@@ -27,9 +27,6 @@ struct Context {
     closing_price_index: usize,
 }
 
-
-
-
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
 async fn send_http_request(
@@ -39,14 +36,13 @@ async fn send_http_request(
     headers: Vec<Headers>,
     body: String,
 ) -> String {
-
-
-    let request_headers: Vec<HttpHeader> = headers.into_iter().map(|x|{
-        HttpHeader {
+    let request_headers: Vec<HttpHeader> = headers
+        .into_iter()
+        .map(|x| HttpHeader {
             name: x.key,
             value: x.value,
-        }
-    }).collect();
+        })
+        .collect();
 
     //note: here, r#""# is used for raw strings in Rust, which allows you to include characters like " and \ without needing to escape them.
     //We could have used "serde_json" as well.
@@ -62,11 +58,11 @@ async fn send_http_request(
         closing_price_index: 4,
     };
 
-    let _method= if method.to_uppercase()=="POST"{
+    let _method = if method.to_uppercase() == "POST" {
         HttpMethod::POST
-    } else{
+    } else {
         HttpMethod::GET
-    } ;
+    };
 
     let request = CanisterHttpRequestArgument {
         url: target_url.to_string(),
@@ -243,7 +239,7 @@ async fn submit_http_request(
     let (request_id,): (String,) = call_with_payment128(
         adc_canister_principal,
         adc_canister_request_method,
-        (target_url, method,redacted,headers,body),
+        (target_url, method, redacted, headers, body),
         state::get_transaction_fee(),
     )
     .await
@@ -277,7 +273,7 @@ fn receive_adc_response(response: ADCResponse) {
 
 #[ic_cdk::update]
 /// receive a response form the ADC canister
-fn get_adc_response(request_id: String)-> Option<String>  {
+fn get_adc_response(request_id: String) -> Option<String> {
     get_request_value(&request_id)
 }
 
@@ -288,9 +284,9 @@ fn receive_adc_response_v2(response: ADCResponseV2) {
     // log the price and name of each asset received
     for content in adc_response.clone().contents {
         // if there was an error fetching the currency pair then log an error
-        let full_proof= ProofResponse::FullProof(content).get_http_response_body();
+        let full_proof = ProofResponse::FullProof(content).get_http_response_body();
         ic_cdk::println!("\n\nContent:\n {}", &full_proof);
-        set_request_value(&adc_response.id,full_proof);
+        set_request_value(&adc_response.id, full_proof);
     }
 }
 

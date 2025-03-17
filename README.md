@@ -24,10 +24,7 @@ To explore live TLS proofs and metrics sourced for the IC-ADC, visit the [IC-ADC
 
 The ADC works similarly to the native [IC Exchange Rate Canister](https://github.com/dfinity/exchange-rate-canister). Calling Canisters integrate with the ADC by making [XNET calls](https://internetcomputer.org/how-it-works/message-routing/) and waiting for a response from the ADC.
 
-You can find an example of this implementation in the [`example_caller`](./example_caller) folder.
-
-> [!NOTE]
-> Currently, your calling canister must be whitelisted. To get whitelisted, [please contact Usher Labs directly](https://www.usher.so/contact/), or [join our Discord](https://go.usher.so/discord).
+To learn more about integrating you Canister with the IC-ADC, read the [`example_caller/README.md`](./example_caller/README.md).
 
 ### Overview
 

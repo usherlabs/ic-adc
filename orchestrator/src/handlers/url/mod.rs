@@ -1,17 +1,13 @@
 use crate::{
     config::{Config, NotaryInformation},
-    helpers::{
-        logs::types::EventUrlLog,
-        utils::get_utc_timestamp,
-        verity::get_verity_client,
-    },
+    helpers::{logs::types::EventUrlLog, utils::get_utc_timestamp, verity::get_verity_client},
 };
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     result::Result::{self, Ok},
     sync::Arc,
 };
-use std::sync::atomic::{AtomicBool, Ordering};
 use tracing::{debug, error, info};
 use types::{ErrorResponse, ResponseV2};
 
@@ -97,18 +93,32 @@ pub async fn resolve_data(event_logs: Vec<EventUrlLog>) -> Vec<ResponseResult> {
             let mut headers = HeaderMap::new();
 
             for header in request.headers {
-                
                 // Parse the key into a HeaderName and the value into a HeaderValue
-                if let (Ok(header_name), Ok(header_value)) = (header.key.as_str().parse::<HeaderName>(), header.value.parse::<HeaderValue>()) {
+                if let (Ok(header_name), Ok(header_value)) = (
+                    header.key.as_str().parse::<HeaderName>(),
+                    header.value.parse::<HeaderValue>(),
+                ) {
                     headers.insert(header_name, header_value);
                 } else {
                     eprintln!("Invalid header: {} -> {}", header.key, header.value);
                 }
             }
             let process_status = if request.method.to_lowercase() == "get" {
-                verity.get(request.target_url).body(request.body).redact(request.redacted).headers(headers).send().await
+                verity
+                    .get(request.target_url)
+                    .body(request.body)
+                    .redact(request.redacted)
+                    .headers(headers)
+                    .send()
+                    .await
             } else {
-                verity.post(request.target_url).body(request.body).redact(request.redacted).headers(headers).send().await
+                verity
+                    .post(request.target_url)
+                    .body(request.body)
+                    .redact(request.redacted)
+                    .headers(headers)
+                    .send()
+                    .await
             };
             match process_status {
                 Err(msg) => {
@@ -121,10 +131,10 @@ pub async fn resolve_data(event_logs: Vec<EventUrlLog>) -> Vec<ResponseResult> {
                     )));
                 }
                 Ok(verify_response) => {
-                    price_response.proof_requests=vec![verify_response.proof];
+                    price_response.proof_requests = vec![verify_response.proof];
 
                     responses.push(Ok(price_response))
-                },
+                }
             };
         }
 

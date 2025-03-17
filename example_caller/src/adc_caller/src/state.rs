@@ -22,10 +22,8 @@ pub fn get_transaction_fee() -> u128 {
 
 /// Setter for `IC_ADC_CANISTER` state variable
 pub fn set_adc_address(new_adc_addressr: Option<Principal>) {
-    IC_ADC_CANISTER
-        .with(|old_adc_addressr| *old_adc_addressr.borrow_mut() = new_adc_addressr);
+    IC_ADC_CANISTER.with(|old_adc_addressr| *old_adc_addressr.borrow_mut() = new_adc_addressr);
 }
-
 
 /// Setter for `FEE` state variable
 pub fn set_transaction_fee(new_fee: u128) {
