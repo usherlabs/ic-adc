@@ -4,13 +4,20 @@
     "indentStyle": "space",
     "lineWidth": 120
   },
+  "files": {
+    "ignore": ["**/release/**/*", "target/*"]
+  },
   "organizeImports": { "enabled": true },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
+      "performance": {
+        "noAccumulatingSpread": "off"
+      },
       "suspicious": {
         "noExplicitAny": "off",
+        "noSparseArray": "off",
         "noConfusingVoidType": "off"
       },
       "style": {

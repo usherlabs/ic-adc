@@ -1,12 +1,12 @@
 import { Principal } from "@dfinity/principal";
 import axios from "axios";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { ADC_CALLER, PROCESSOR_CALLER, adc_caller, getCanisterCycles, processor_canister } from "./actor";
 
 // biome-ignore lint/style/useSingleVarDeclarator: initialized variable
 let verifier: string, total_http_out_call: number;
 
-const target_url = "https://api-testnet.nearblocks.io/v1/account/x-bitte-nfts.testnet/txns-only?cursor=0&order=asc";
+const target_url = "https://api-itnet.nearblocks.io/v1/account/x-bitte-nfts.testnet/txns-only?cursor=0&order=asc";
 const method = "GET";
 const redacted = "";
 const headers = [];
@@ -28,19 +28,19 @@ describe("ADC-caller IC Verifier", () => {
     verifier = Principal.fromUint8Array(result[0]._arr).toText();
   });
 
-  test("expect set adc_address", async () => {
+  it("expect set adc_address", async () => {
     const result = (await ADC_CALLER.get_adc_address()) as any;
     expect(result).toBeDefined();
     expect(Principal.fromUint8Array(result[0]._arr).toText()).toBe(processor_canister);
   });
 
-  test("expect set verifier", async () => {
+  it("expect set verifier", async () => {
     const result = (await PROCESSOR_CALLER.get_verifier_canister()) as any;
     expect(result).toBeDefined();
     expect(Principal.fromUint8Array(result[0]._arr).toText().length, "verifier must be set").toBe(27);
   });
 
-  test("estimate cost for HTTPS_OUT_CALL", async () => {
+  it("estimate cost for HTTPS_OUT_CALL", async () => {
     const old_balance_adc_caller = await getCanisterCycles(adc_caller);
     const old_balance_adc = await getCanisterCycles(processor_canister);
     const old_balance_verifier = await getCanisterCycles(verifier);
@@ -60,7 +60,7 @@ describe("ADC-caller IC Verifier", () => {
     total_http_out_call = _adc_caller + _adc + _verifier;
   }, 60000);
 
-  test("estimate cost for our_http_orchestrator", async () => {
+  it("estimate cost for our_http_orchestrator", async () => {
     const old_balance_adc_caller = await getCanisterCycles(adc_caller);
     const old_balance_adc = await getCanisterCycles(processor_canister);
     const old_balance_verifier = await getCanisterCycles(verifier);
