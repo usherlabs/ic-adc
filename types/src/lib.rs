@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 pub type ADCResponse = Result<Response, ErrorResponse>;
 pub type ADCResponseV2 = Result<ResponseV2, ErrorResponse>;
 
-
 #[derive(Clone, CandidType, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub enum ProofTypes {
     Pyth(String),
@@ -51,13 +50,13 @@ pub struct Request {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct ProxyRequest{
+pub struct ProxyRequest {
     pub id: String,
-	pub target_url: String,
-    pub method:   String,
-	pub redacted:  String,
-	pub headers:  Vec<Headers>,
-	pub body:   String,
+    pub target_url: String,
+    pub method: String,
+    pub redacted: String,
+    pub headers: Vec<Headers>,
+    pub body: String,
     pub owner: Principal,
 }
 impl Debug for ProxyRequest {
@@ -110,7 +109,6 @@ pub struct ResponseV2 {
     /// and is ready to be sent to the canister
     pub processed: bool,
 }
-
 
 impl Debug for Response {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -187,16 +185,15 @@ pub struct Headers {
     pub value: String,
 }
 
-
 impl ProxyRequest {
     pub fn new(
         id: String,
         target_url: String,
         method: String,
-        redacted:  String,
-        headers:  Vec<Headers>,
-        body:   String,
-        owner: Principal
+        redacted: String,
+        headers: Vec<Headers>,
+        body: String,
+        owner: Principal,
     ) -> Self {
         Self {
             id,
@@ -235,12 +232,11 @@ impl From<Request> for Response {
 
 impl From<ProxyRequest> for ResponseV2 {
     fn from(request: ProxyRequest) -> Self {
-
         Self {
             id: request.id,
             owner: request.owner,
             proof_requests: vec![],
-            contents:vec![],
+            contents: vec![],
             processed: false,
         }
     }
