@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 cargo fmt --all -- --check
 
 if [ $? -ne 0 ]; then
