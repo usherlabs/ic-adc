@@ -1,11 +1,7 @@
-use std::sync::Arc;
 use std::env;
+use std::sync::Arc;
 
-use crate::{
-    config::Config,
-    handlers::batch_handler,
-    helpers::cron::CronJob,
-};
+use crate::{config::Config, handlers::batch_handler, helpers::cron::CronJob};
 use tokio_cron_scheduler::Job;
 use tracing::info;
 

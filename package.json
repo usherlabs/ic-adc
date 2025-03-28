@@ -6,12 +6,12 @@
   "scripts": {
     "test": "vitest",
     "ci": "vitest run",
-    "prep": "dfx deploy; dfx generate ; cd ../processor/ic/ ;  dfx deploy; dfx generate; cd ../../example_caller",
+    "prep": "cd ../example_caller/; dfx deploy; dfx generate ; cd ../processor/ic/ ;  dfx deploy; dfx generate; cd ../../example_caller",
     "prep:clean": "dfx stop; dfx start --background --clean; pnpm prep",
-    "prepare": "HUSKY_GIT_DIR=\"../.git\" husky",
-    "format": "biome format __tests__/ --fix",
-    "lint": "biome check __tests__/",
-    "lint:fix": "biome check __tests__/ --fix"
+    "prepare": "husky",
+    "format": "npx biome format  --fix",
+    "lint": "npx biome check ",
+    "lint:fix": "npx biome check  --fix"
   },
   "keywords": [],
   "author": "",
@@ -35,14 +35,9 @@
     "vitest": "^0.17.1"
   },
   "lint-staged": {
-    "*.{js,ts,cjs,mjs,d.cts,d.mts,json,jsonc}": [
-      "biome check --apply --no-errors-on-unmatched"
-    ]
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,json,jsonc}": ["npx biome format --fix && npx biome check --write "]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "secp256k1"
-    ]
+    "onlyBuiltDependencies": ["esbuild", "secp256k1"]
   }
 }

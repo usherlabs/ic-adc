@@ -1,6 +1,5 @@
 use types::{ProxyRequest, Request};
 
-
 /// The type to represent DFX results.
 pub type DfxResult<T = ()> = anyhow::Result<T>;
 
@@ -29,7 +28,7 @@ pub struct EventUrlLog {
 }
 
 impl EventUrlLog {
-    pub fn new(index: u64, timestamp: u64, logs:ProxyRequest) -> Self {
+    pub fn new(index: u64, timestamp: u64, logs: ProxyRequest) -> Self {
         Self {
             index,
             timestamp,

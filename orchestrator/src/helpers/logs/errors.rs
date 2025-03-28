@@ -14,5 +14,4 @@ pub enum CanisterBuilderError {
 pub enum CallSenderFromWalletError {
     #[error("Failed to read principal from id '{0}', and did not find a wallet for that identity")]
     ParsePrincipalFromIdFailed(String, #[source] PrincipalError),
-
 }
